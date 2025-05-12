@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/dipo/Documents/University/Informatica/Magistrale/LanguagesForConcurrencyAndDistribution/VP2Pccs/VP2Pccs.fsproj": {}
+  },
+  "projects": {
+    "/home/dipo/Documents/University/Informatica/Magistrale/LanguagesForConcurrencyAndDistribution/VP2Pccs/VP2Pccs.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/dipo/Documents/University/Informatica/Magistrale/LanguagesForConcurrencyAndDistribution/VP2Pccs/VP2Pccs.fsproj",
+        "projectName": "VP2Pccs",
+        "projectPath": "/home/dipo/Documents/University/Informatica/Magistrale/LanguagesForConcurrencyAndDistribution/VP2Pccs/VP2Pccs.fsproj",
+        "packagesPath": "/home/dipo/.nuget/packages/",
+        "outputPath": "/home/dipo/Documents/University/Informatica/Magistrale/LanguagesForConcurrencyAndDistribution/VP2Pccs/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/dipo/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "/snap/dotnet-sdk/256/sdk/8.0.407/FSharp/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "FParsec": {
+              "target": "Package",
+              "version": "[1.1.1, )"
+            },
+            "FSharp.Core": {
+              "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[8.0.403, )",
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/snap/dotnet-sdk/256/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

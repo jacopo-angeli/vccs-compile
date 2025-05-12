@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src/Pccs/Pccs.fs" />
+    <Compile Include="src/Pccs/PccsPrinter.fs" />
+    <Compile Include="src/Vccs/Vccs.fs" />
+    <Compile Include="src/Vccs/VccsPrinter.fs" />
+    <Compile Include="src/Parser.fs" />
+    <Compile Include="src/Printer.fs" />
+    <Compile Include="src/Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FParsec" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

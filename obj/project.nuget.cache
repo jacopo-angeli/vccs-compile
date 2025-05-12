@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "zQFqv0rNxp4=",
+  "success": true,
+  "projectFilePath": "/home/dipo/Documents/University/Informatica/Magistrale/LanguagesForConcurrencyAndDistribution/VP2Pccs/VP2Pccs.fsproj",
+  "expectedPackageFiles": [
+    "/home/dipo/.nuget/packages/fparsec/1.1.1/fparsec.1.1.1.nupkg.sha512",
+    "/home/dipo/.nuget/packages/fsharp.core/8.0.403/fsharp.core.8.0.403.nupkg.sha512"
+  ],
+  "logs": []
+}
