@@ -1,22 +1,44 @@
-﻿open System
-open System.IO
-open Parser
+﻿open System.IO
+open FSharp.Text.Lexing
+open Compiler
+
+let parse input =
+    let lexbuf = LexBuffer<char>.FromString(input)
+    try
+        let result = Parser.start Lexer.token lexbuf
+        printfn "✅ Parsed successfully."
+        result
+    with ex ->
+        printfn "❌ Parsing error: %s" ex.Message
+        reraise ()
 
 [<EntryPoint>]
 let main argv =
-    if argv.Length <> 1 then
-        printfn "Usage: VP2Pccs <input.ccsvp>"
-        1
-    else
-        let inputPath = argv.[0]
-        let outputPath = Path.Combine("out", Path.GetFileNameWithoutExtension(inputPath) + ".ccs")
-        let inputText = File.ReadAllText(inputPath)
+    
+    let rec dumpTokens lexbuf =
+        match Lexer.token lexbuf with
+        | Parser.EOF -> printfn "EOF"
+        | token -> 
+            printfn "Token: %A" token
+            dumpTokens lexbuf
+    let input = "P = a(0).A;"
+    let lexbuf = LexBuffer<char>.FromString input
+    dumpTokens lexbuf
 
-        try
-            // TODO: call parser
-            printfn "Parsed successfully: %s" inputPath
-            File.WriteAllText(outputPath, "// compiled CCS output goes here")
-            0
-        with ex ->
-            printfn "Error: %s" ex.Message
-            1
+
+    let testFile = "test/full.ccsvp"
+    let input = File.ReadAllText testFile
+    let lexbuf = LexBuffer<char>.FromString input
+    try
+        let result = Parser.start Lexer.token lexbuf 
+        printfn "✅ Parsed successfully.\n"
+        List.iter (fun x -> printfn "%O\n"  x) result
+        let ignore = (compile result)
+        0
+    with
+    | ex ->
+        let pos = lexbuf.EndPos
+        let line = if pos.Line > 0 then pos.Line else 1
+        let column = if pos.Column > 0 then pos.Column else 1
+        printfn "%O" ex
+        0

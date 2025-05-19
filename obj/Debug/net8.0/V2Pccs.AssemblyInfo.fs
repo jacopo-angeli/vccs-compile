@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("V2Pccs")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8f7f386f7de2819b7cf08870e608db2b6104a45")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc5d08989005c844d176011db424acd2067c05e2")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("V2Pccs")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("V2Pccs")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]

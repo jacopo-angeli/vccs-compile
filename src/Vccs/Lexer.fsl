@@ -1,0 +1,63 @@
+{
+open FSharp.Text.Lexing
+open Parser
+
+let lexeme lexbuf = LexBuffer<_>.LexemeString lexbuf
+}
+
+
+let whitespace = [' ' '\t' '\r' '\n']+
+let digit = ['0'-'9']
+let digits = digit+
+let ident = ['a'-'z' 'A'-'Z'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '\'' '\\']*
+
+
+rule token = parse
+    | whitespace            { token lexbuf }  // skip whitespace
+    | "//" [^'\n']*         { token lexbuf }  // skip single-line comments
+
+    // Keywords
+    | "tau"                 { TAU }
+    | "if"                  { IF  }
+    | "then"                { THEN } 
+    | "nil"                 { NIL }
+
+    | ident                 { IDENT (lexeme lexbuf) }
+    | digits                { NUM (int (lexeme lexbuf)) }
+
+    | "="                   { EQ }
+    | ":"                   { COLON }
+    | ","                   { COMMA }
+    | ";"                   { SEMICOLON }
+    | "("                   { LPAREN }
+    | ")"                   { RPAREN }
+    | "{"                   { LBRACE }
+    | "}"                   { RBRACE }
+    | "["                   { LBRACK }
+    | "]"                   { RBRACK }
+    | "'"                   { QUOTE }
+    | "."                   { DOT }
+    | "\\"                  { BACKSLASH }
+
+    // Arithmetic and Boolean Operators
+    | "+"                   { PLUS }
+    | "-"                   { MINUS }
+    | "*"                   { TIMES }
+    | "/"                   { DIV }
+    | "=="                  { EQEQ }
+    | "!="                  { NEQ }
+    | "<="                  { LE }
+    | ">="                  { GE }
+    | "<"                   { LT }
+    | ">"                   { GT }
+    | "&&"                  { AND }
+    | "||"                  { OR }
+    | "|"                   { PIPE }
+    | "!"                   { NOT }
+    
+    | eof                   { EOF }
+    | _                     { 
+                                let pos = lexbuf.EndPos
+                                let err = sprintf "Illegal character  at line %d, column %d" pos.Line pos.Column
+                                failwith err
+                            }
