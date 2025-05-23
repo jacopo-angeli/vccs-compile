@@ -1,5 +1,6 @@
 %{
 open Vccs
+open Interval
 %}
 
 %start start
@@ -33,7 +34,7 @@ program:
     | ccs SEMICOLON                                 { [$1] }
 
 ccs:
-    | IDENT EQ proc                                 { printfn "1";($1, [], $3) }
+    | IDENT EQ proc                                 { ($1, [], $3) }
     | IDENT LPAREN params RPAREN EQ proc            { ($1, $3, $6) }
 
 params:
@@ -44,7 +45,7 @@ param:
     | IDENT COLON ty                                { ($1, $3) }
 
 ty:
-    | LBRACK NUM COMMA NUM RBRACK                   { Vccs.Interval($2, $4) }
+    | LBRACK NUM COMMA NUM RBRACK                   { Interval($2, $4) }
 
 idents:
     | IDENT COMMA idents                            { $1 :: $3 }
@@ -52,7 +53,7 @@ idents:
 
 proc:
     | QUOTE IDENT LPAREN aexp RPAREN DOT proc       { Vccs.Output($2, $4, $7) }
-    | IDENT LPAREN IDENT RPAREN DOT proc            { Vccs.Input($1, $3, $6) }
+    | IDENT LPAREN params RPAREN DOT proc           { Vccs.Input($1, $3, $6) }
     | IDENT LPAREN aexps RPAREN                     { Vccs.ConstCall($1, $3) }
     | IDENT                                         { Vccs.ConstCall($1, [])}
     | TAU DOT proc                                  { Vccs.Silent($3) }
@@ -79,7 +80,7 @@ renames:
 
 rename:
     | IDENT SLASH IDENT                             { RenameVar($1, $3) }
-    | NUM SLASH IDENT                               { RenameVal($1, $3) }
+    | NUM SLASH IDENT                               { RenameVal(($1,$1), $3) }
 
 aexp:
     | aexp PLUS aexp                                { Vccs.Add($1, $3) }

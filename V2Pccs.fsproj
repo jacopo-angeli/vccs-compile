@@ -9,6 +9,7 @@
 
   <ItemGroup>
     
+    <Compile Include="src/Vccs/Interval.fs" />
     <Compile Include="src/Vccs/Vccs.fs" />
     <Compile Include="src/Pccs/Pccs.fs" />
 

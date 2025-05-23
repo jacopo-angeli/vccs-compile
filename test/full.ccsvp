@@ -1,6 +1,7 @@
 // Basic constant calls
-P = 'a(1).P;
-//B = Q(x + 1, y);
+P = a(x:[0,10]).P;
+Q (x:[0,1]) = Q(x);
+B = Q(1);
 
 // Declaration with interval and enum types
 //Main(x : [0, 10], y : {on, off}) = 'read(x).if x == 0 then A + B | 'write(x + 1).tau.Main(x + 1, y) \ {read, write} [read / in, write / out];

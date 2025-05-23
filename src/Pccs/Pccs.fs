@@ -1,14 +1,19 @@
 module Pccs
 
+type channel = string
+
+type Action =
+    | Input of string
+    | Output of string
+    | Silent
+
 type P =
     | ConstCall         of string                
-    | Input             of string * P          
-    | Output            of string * P          
-    | Silent            of P                   
+    | Act               of Action * P                
     | Sum               of P * P                   
     | Parallel          of P * P               
     | Restrict          of P * string list       
-    | Rename            of P * (string * string) list  
+    | Rename            of P * (Action * Action) list  
     | Nil
 
 type Pccs = string * P
@@ -23,7 +28,14 @@ let rec stringify ((K, P) : Pccs) : string =
         | Sum (proc1, proc2) -> P2S proc1 + " + " + P2S proc2
         | Parallel (proc1, proc2) -> P2S proc1 + " | " + P2S proc2
         | Restrict (proc, names) -> P2S proc + " \\ {" + String.concat ", " names + "}"
-        | Rename (p, renames) -> P2S p + "[" + List.fold (fun acc s -> if acc = "" then s else acc + ", " + s) "" (List.map (fun (x,y) -> x + "/ " + y) renames) + "]"
+        | Rename (p, renames) -> 
+            let R2S rename =
+                match rename with
+                | In(x, y) -> sprintf "%s → %s" x y
+                | Out(x, y) -> sprintf "%s → %s" x y
+
+            let renStr = renames |> List.map R2S |> String.concat ", "
+            P2S p + " [" + renStr + "]"
         | Nil -> "0"
 
     sprintf "%s = %s" K (P2S P)
