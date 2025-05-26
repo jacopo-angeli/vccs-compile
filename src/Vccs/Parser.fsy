@@ -52,11 +52,11 @@ idents:
     | IDENT                                         { [$1] }
 
 proc:
-    | QUOTE IDENT LPAREN aexp RPAREN DOT proc       { Vccs.Output($2, $4, $7) }
-    | IDENT LPAREN params RPAREN DOT proc           { Vccs.Input($1, $3, $6) }
+    | QUOTE IDENT LPAREN aexp RPAREN DOT proc       { Vccs.Act(Vccs.Output($2, $4), $7) }
+    | IDENT LPAREN param RPAREN DOT proc            { Vccs.Act(Vccs.Input($1, $3), $6) }
     | IDENT LPAREN aexps RPAREN                     { Vccs.ConstCall($1, $3) }
-    | IDENT                                         { Vccs.ConstCall($1, [])}
-    | TAU DOT proc                                  { Vccs.Silent($3) }
+    | IDENT                                         { Vccs.ConstCall($1, []) }
+    | TAU DOT proc                                  { Vccs.Act(Vccs.Silent, $3) }
     | IF bexp THEN proc_block                       { Vccs.Conditional($2, $4) }
     | proc PLUS proc                                { Vccs.Sum($1, $3) }
     | proc PIPE proc                                { Vccs.Parallel($1, $3) }
@@ -70,7 +70,6 @@ proc_block:
     | LPAREN proc RPAREN                            { $2 }
 
 aexps:
-    | IDENT                                         { Vccs.Var($1) :: [] }
     | aexp COMMA aexps                              { $1 :: $3 }
     | aexp                                          { $1 :: [] }
 
@@ -79,8 +78,11 @@ renames:
     | rename                                        { [$1] }
 
 rename:
-    | IDENT SLASH IDENT                             { RenameVar($1, $3) }
-    | NUM SLASH IDENT                               { RenameVal(($1,$1), $3) }
+    | rename_action SLASH rename_action             { ($1, $3) }
+
+rename_action:
+    | QUOTE IDENT LPAREN aexp RPAREN                { Vccs.Output($2, $4) }
+    | IDENT LPAREN param RPAREN                     { Vccs.Input($1, $3) }
 
 aexp:
     | aexp PLUS aexp                                { Vccs.Add($1, $3) }

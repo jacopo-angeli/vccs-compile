@@ -4,13 +4,13 @@ Q (x:[0,1]) = Q(x);
 B = Q(1);
 
 // Declaration with interval and enum types
-//Main(x : [0, 10], y : {on, off}) = 'read(x).if x == 0 then A + B | 'write(x + 1).tau.Main(x + 1, y) \ {read, write} [read / in, write / out];
+//Main(x : [0, 10], y : [0,5]) = 'out(x).if x == 0 then A + B | 'write(x + 1).tau.Main(x + 1, y) \ {read, write} [read / in, write / out];
 
 // Input with variable
-//InputProc = channel(msg).P;
+InputProc = channel(msg:[0,20]).P;
 
 // Output with expression
-//OutputProc = 'channel(x + 1).Q(x);
+OutputProc = channel(x:[10,20]).'channel(x + 1).Q(x);
 
 // Silent prefix
 //SilentProc = tau.P;
