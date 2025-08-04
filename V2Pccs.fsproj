@@ -9,24 +9,23 @@
 
   <ItemGroup>
     
-    <Compile Include="src/Vccs/Interval.fs" />
-    <Compile Include="src/Vccs/Vccs.fs" />
-    <Compile Include="src/Pccs/Pccs.fs" />
+    <Compile Include="src/Vccs/Types/Interval.fs" />
+    <Compile Include="src/Vccs/Types/Vccs.fs" />
+    <Compile Include="src/Pccs/Types/Pccs.fs" />
 
-    <FsYacc Include="src/Vccs/Parser.fsy">
-      <OtherFlags>--module Parser -o src/Vccs/Generated/Parser.fs</OtherFlags>
+    <FsYacc Include="src/Vccs/fslexyacc/Parser.fsy">
+      <OtherFlags>--module Parser -o src/Vccs/fslexyacc/Generated/Parser.fs</OtherFlags>
     </FsYacc>
 
-    <FsLex Include="src/Vccs/Lexer.fsl">
-      <OtherFlags>--module Lexer --unicode -o src/Vccs/Generated/Lexer.fs</OtherFlags>
+    <FsLex Include="src/Vccs/fslexyacc/Lexer.fsl">
+      <OtherFlags>--module Lexer --unicode -o src/Vccs/fslexyacc/Generated/Lexer.fs</OtherFlags>
     </FsLex>
 
-    <Compile Include="src/Vccs/Generated/Parser.fsi" />
-    <Compile Include="src/Vccs/Generated/Parser.fs" />
-    <Compile Include="src/Vccs/Generated/Lexer.fs" />
+    <Compile Include="src/Vccs/fslexyacc/Generated/Parser.fsi" />
+    <Compile Include="src/Vccs/fslexyacc/Generated/Parser.fs" />
+    <Compile Include="src/Vccs/fslexyacc/Generated/Lexer.fs" />
 
     <Compile Include="src/Compiler.fs" />
-    <Compile Include="test/TestGenerateParameterValuations.fs" />
     
     <Compile Include="src/Program.fs" />
     

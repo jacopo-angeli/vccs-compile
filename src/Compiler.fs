@@ -31,7 +31,10 @@ let compile (vccss: Vccs list) : Pccs list =
             let rec evaluateA (exp: Vccs.AExp) : int =
                 match exp with
                 | Num x -> x
-                | Var x -> match Map.tryFind x globalEnv with Some(value) -> value | None -> failwith "Using a variable before declaration."
+                | Var x -> 
+                    match Map.tryFind x globalEnv with 
+                    | Some(value) -> value 
+                    | None -> failwith "Using a variable before declaration."
                 | Add (l, r) -> evaluateA l + evaluateA r
                 | Sub (l, r) -> evaluateA l - evaluateA r
                 | Mul (l, r) -> evaluateA l * evaluateA r
@@ -99,7 +102,6 @@ let compile (vccss: Vccs list) : Pccs list =
                 Pccs.ConstCall name
 
             | Vccs.Nil -> Pccs.Nil
-        
         
         match vccs with 
         | name, parameters, body ->
