@@ -4,7 +4,7 @@ open Vccs
 open Pccs
 open Interval
 
-let generateParameterValuations (parameters: (string * Interval) list) : (string * int) list list =
+let getValuations (parameters: (string * Interval) list) : (string * int) list list =
     
     let domains: (string * int list) list =
         parameters
@@ -25,21 +25,17 @@ let generateParameterValuations (parameters: (string * Interval) list) : (string
 let compile (vccss: Vccs list) : Pccs list =
     
     let rec compile (vccs: Vccs) : Pccs list =
-        let localEnv : Map<string, Interval> = Map.empty
-        let rec compileP  (P : Vccs.P) (globalEnv: Map<string,int>) : Pccs.P =
-            
+        let rec compileP  (P : Vccs.P) (env: List<string*int>) : Pccs.P =
             let rec evaluateA (exp: Vccs.AExp) : int =
                 match exp with
                 | Num x -> x
                 | Var x -> 
-                    match Map.tryFind x globalEnv with 
-                    | Some(value) -> value 
-                    | None -> failwith "Using a variable before declaration."
+                    match List.find (fun (name, _)-> name = x) env with
+                        | (_, value) -> value
                 | Add (l, r) -> evaluateA l + evaluateA r
                 | Sub (l, r) -> evaluateA l - evaluateA r
                 | Mul (l, r) -> evaluateA l * evaluateA r
-                | Div (l, r) -> evaluateA l / evaluateA r
-            
+                | Div (l, r) -> evaluateA l / evaluateA r            
             let rec evaluateB (exp: Vccs.BExp) : bool =
                 match exp with
                     | Eq(A,A') -> evaluateA A = evaluateA A'
@@ -51,16 +47,15 @@ let compile (vccss: Vccs list) : Pccs list =
                     | Not B -> not (evaluateB B)              
                     | And(B, B') -> evaluateB B && evaluateB B'
                     | Or(B, B') -> evaluateB B || evaluateB B'
-
             match P with 
             | Vccs.Act(action,P) -> 
                 match action with
                 | Vccs.Silent ->
-                    Pccs.Act (Pccs.Silent, compileP P globalEnv)
+                    Pccs.Act (Pccs.Silent, compileP P env)
                 | Vccs.Input(channel, (var, interval)) ->
                     Interval.toList interval
                     |> List.map (
-                            fun value -> Pccs.Act(Pccs.Input (sprintf "%s_%d" channel value), compileP P (Map.add var value globalEnv))
+                            fun value -> Pccs.Act(Pccs.Input (sprintf "%s_%d" channel value), compileP P ((var, value) :: env))
                         )
                     |> List.reduce (fun x y -> Pccs.Sum(x,y))
 
@@ -69,14 +64,14 @@ let compile (vccss: Vccs list) : Pccs list =
                         try sprintf "%d" (evaluateA expr)
                         with e -> printfn "%O" expr;match expr with Vccs.Var x -> sprintf "%s" x | _ -> failwith "Impossible" 
 
-                    Pccs.Act(Pccs.Output (sprintf "%s_%s" channel eval), compileP P globalEnv)
+                    Pccs.Act(Pccs.Output (sprintf "%s_%s" channel eval), compileP P env)
 
             | Vccs.Conditional(bExp,P) -> 
-                if evaluateB bExp then compileP P globalEnv else Pccs.Nil
+                if evaluateB bExp then compileP P env else Pccs.Nil
 
-            | Vccs.Sum(P, P')-> Pccs.Sum(compileP P globalEnv, compileP P' globalEnv)
-            | Vccs.Parallel(P,P')-> Pccs.Parallel(compileP P globalEnv, compileP P' globalEnv)
-            | Vccs.Restrict(P,L)-> Pccs.Restrict(compileP P globalEnv, L)
+            | Vccs.Sum(P, P')-> Pccs.Sum(compileP P env, compileP P' env)
+            | Vccs.Parallel(P,P')-> Pccs.Parallel(compileP P env, compileP P' env)
+            | Vccs.Restrict(P,L)-> Pccs.Restrict(compileP P env, L)
             | Vccs.Rename (P,f)->
                 let vact2pacts action =
                     match action with
@@ -91,7 +86,7 @@ let compile (vccss: Vccs list) : Pccs list =
                         List.allPairs (vact2pacts fromA) (vact2pacts toA))
                             f
 
-                Pccs.Rename(compileP P globalEnv, expandedRenames)
+                Pccs.Rename(compileP P env, expandedRenames)
 
             | Vccs.ConstCall (K, []) ->
                 Pccs.ConstCall K
@@ -101,16 +96,18 @@ let compile (vccss: Vccs list) : Pccs list =
                 let name = K + (evals |> List.map string |> List.map (sprintf "_%s") |> String.concat "")
                 Pccs.ConstCall name
 
-            | Vccs.Nil -> Pccs.Nil
-        
+            | Vccs.Nil -> Pccs.Nil       
         match vccs with 
+        | name, [], body ->
+            let bodyCompiled = compileP body []
+            [Pccs(name, bodyCompiled)]
         | name, parameters, body ->
-            List.map 
-                (fun env ->
-                    let valuations = generateParameterValuations
-                    Pccs(name, compileP body  (Map.ofList env))
-                )
-                (generateParameterValuations parameters)
-    
-    List.concat (List.map compile vccss) 
+            List.map
+                (fun (env : List<string * int>) ->
+                    let name = name + List.reduce (+) (List.map (fun (k,v) -> sprintf "_%d" v) env)
+                    let body = compileP body env  
+                    Pccs(name, body))
+                (getValuations parameters)  
+            
+    List.concat (List.map compile vccss)
     
