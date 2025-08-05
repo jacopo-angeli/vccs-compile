@@ -1,0 +1,107 @@
+%**************************************************************
+% BEAMER THEME AND SETTINGS
+%**************************************************************
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+%**************************************************************
+% PACKAGES & GRAPHICS SETTINGS
+%**************************************************************
+\usepackage{graphicx}      % For \includegraphics
+\graphicspath{{media/}}    % Folder for image files
+
+\usepackage[dvipsnames]{xcolor}
+
+\usepackage{listings}      % Code listings
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{tikz}
+\usepackage{array}
+\usepackage{syntax}
+
+%**************************************************************
+% CODE LISTINGS SETTINGS
+%**************************************************************
+\lstdefinelanguage{VCCS}{
+    keywords={tau, if, then, nil},
+    keywordstyle=\color{blue}\bfseries,
+    ndkeywords={},
+    ndkeywordstyle=\color{darkgray}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{//},
+    commentstyle=\color{purple}\ttfamily,
+    stringstyle=\color{red}\ttfamily,
+    morestring=[b]',
+    morestring=[b]'
+}
+
+\lstset{
+    language=VCCS,
+    basicstyle=\small\ttfamily,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=10pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=2,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    title=\lstname,
+}
+
+%**************************************************************
+% CAPTIONS SETTINGS
+%**************************************************************
+\usepackage{caption}
+\captionsetup{
+    tableposition=top,
+    figureposition=bottom,
+    font=small,
+    format=hang,
+    labelfont=bf
+}
+
+%**************************************************************
+% ITEMIZE SETTINGS
+%**************************************************************
+
+%**************************************************************
+% TEXT UTILITIES & MACROS
+%**************************************************************
+\newcommand{\VCCS}{\textsc{Vccs}}
+\newcommand{\PCCS}{\textsc{Pccs}}
+\newcommand{\CCS}{\textsc{Ccs}}
+
+%**************************************************************
+% TITLE INFORMATION
+%**************************************************************
+\title{Technical report}
+\subtitle{A compiler from Value-Passing CCS to Pure Synchronization CCS}
+\author{Jacopo Angeli (2130757)}
+\institute{Università degli Studi di Padova \\ Department of Mathematics \\ Master Degree in Computer Science}
+\date{Languages for Concurrency and Distribution \\ AY 2024\-25}
+
+%**************************************************************
+% TABLE SPACING
+%**************************************************************
+\renewcommand*{\arraystretch}{1.5}
+\def\always{\square}
+\def\next{\circ}
+\def\eventually{\lozenge}
+\def\AND{\wedge}
+\def\OR{\vee}
+\def\until{\mathcal{U}}
+\def\implies{\rightarrow}

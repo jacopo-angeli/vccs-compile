@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <OutDir>./build/</OutDir>
+    <TargetFramework>net8.0</TargetFramework>
+    <FsLexToolExe>fslex.dll</FsLexToolExe>
+    <FsYaccToolExe>fsyacc.dll</FsYaccToolExe>
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <Compile Include="Vccs/Types/Interval.fs" />
+    <Compile Include="Vccs/Types/Vccs.fs" />
+    <Compile Include="Pccs/Types/Pccs.fs" />
+
+    <FsYacc Include="Vccs/fslexyacc/Parser.fsy">
+      <OtherFlags>--module Parser -o Vccs/fslexyacc/Generated/Parser.fs</OtherFlags>
+    </FsYacc>
+
+    <FsLex Include="Vccs/fslexyacc/Lexer.fsl">
+      <OtherFlags>--module Lexer --unicode -o Vccs/fslexyacc/Generated/Lexer.fs</OtherFlags>
+    </FsLex>
+
+    <Compile Include="Vccs/fslexyacc/Generated/Parser.fsi" />
+    <Compile Include="Vccs/fslexyacc/Generated/Parser.fs" />
+    <Compile Include="Vccs/fslexyacc/Generated/Lexer.fs" />
+
+    <Compile Include="Compiler.fs" />
+
+    <Compile Include="Program.fs" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FsLexYacc" Version="11.3.0" />
+  </ItemGroup>
+
+</Project>

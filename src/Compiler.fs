@@ -57,10 +57,10 @@ let compile (vccss: Vccs list) : Pccs list =
                 match action with
                 | Vccs.Silent ->
                     Pccs.Act (Pccs.Silent, compileP P globalEnv)
-                | Vccs.Input(channel, (_, interval)) ->
+                | Vccs.Input(channel, (var, interval)) ->
                     Interval.toList interval
                     |> List.map (
-                            fun value -> Pccs.Act(Pccs.Input (sprintf "%s_%d" channel value), compileP P globalEnv)
+                            fun value -> Pccs.Act(Pccs.Input (sprintf "%s_%d" channel value), compileP P (Map.add var value globalEnv))
                         )
                     |> List.reduce (fun x y -> Pccs.Sum(x,y))
 
@@ -107,6 +107,7 @@ let compile (vccss: Vccs list) : Pccs list =
         | name, parameters, body ->
             List.map 
                 (fun env ->
+                    let valuations = generateParameterValuations
                     Pccs(name, compileP body  (Map.ofList env))
                 )
                 (generateParameterValuations parameters)
