@@ -4,10 +4,138 @@
 \begin{document}
 
 \frame{\titlepage}
-
 \begin{frame}
   \frametitle{Outline}
-  \tableofcontents
+  \tableofcontents[currentsection]
 \end{frame}
+
+\section{Compiler}
+\begin{frame}
+  \centering
+  asd
+\end{frame}
+
+
+\section{Exercises}
+\subsection{Exercise C}
+\begin{frame}
+  \centering
+  \begin{block}{\centering Task}
+    \centering
+    Let \([\![\cdot]\!]\) be the encoding of value-passing CCS processes into pure CCS processes. Prove that this encoding is sound with respect to the operational semantics: For all value-passing CCS processes \(P\) and \(P'\):\[P \xrightarrow{\alpha} P' \implies [\![ P ]\!] \xrightarrow{\alpha'} [\![ P' ]\!]\]
+  \end{block}\hfill\\
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{}
+  \begin{block}{\centering Task}
+    \centering
+    Prove that the encoding of CCS with value passing into pure CCS is sound with respect to the operational semantics
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Operational semantics of CCS}
+  \begin{prooftree}
+    \AxiomC{\(\diamond\)}
+    \UnaryInfC{$\alpha . P \xrightarrow{\alpha} P$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{\(P_j \xrightarrow{\alpha} P_j'\)}
+    \UnaryInfC{$\sum_{i \in I} P_i \xrightarrow{\alpha} P_j$}
+  \end{prooftree}
+  \begin{center}
+    \begin{minipage}{0.32\textwidth}
+      \begin{prooftree}
+        \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+        \UnaryInfC{$P|Q \xrightarrow{\alpha} P'|Q$}
+      \end{prooftree}
+    \end{minipage}
+    \begin{minipage}{0.20\textwidth}
+      \begin{prooftree}
+        \AxiomC{\(Q \xrightarrow{\alpha} Q'\)}
+        \UnaryInfC{$P|Q \xrightarrow{\alpha} P|Q'$}
+      \end{prooftree}
+    \end{minipage}
+    \begin{minipage}{0.32\textwidth}
+      \begin{prooftree}
+        \AxiomC{\(Q \xrightarrow{\alpha} Q'\)}
+        \AxiomC{\(P \xrightarrow{\overline{\alpha}} P'\)}
+        \BinaryInfC{$P|Q \xrightarrow{\tau} P'|Q'$}
+      \end{prooftree}
+    \end{minipage}
+  \end{center}
+  \begin{prooftree}
+    \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+    \UnaryInfC{$P \setminus L \xrightarrow{\alpha} P' \setminus L$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+    \UnaryInfC{$P[f] \xrightarrow{f(\alpha)} P'[f]$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+    \UnaryInfC{$K \xrightarrow{f(\alpha)} P'$}
+  \end{prooftree}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Operational semantics of value passing   CCS}
+  \begin{prooftree}
+    \AxiomC{\(\diamond\)}
+    \UnaryInfC{$\alpha . P \xrightarrow{\alpha} P$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{\(P_j \xrightarrow{\alpha} P_j'\)}
+    \UnaryInfC{$\sum_{i \in I} P_i \xrightarrow{\alpha} P_j$}
+  \end{prooftree}
+  \begin{center}
+    \begin{minipage}{0.32\textwidth}
+      \begin{prooftree}
+        \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+        \UnaryInfC{$P|Q \xrightarrow{\alpha} P'|Q$}
+      \end{prooftree}
+    \end{minipage}
+    \begin{minipage}{0.20\textwidth}
+      \begin{prooftree}
+        \AxiomC{\(Q \xrightarrow{\alpha} Q'\)}
+        \UnaryInfC{$P|Q \xrightarrow{\alpha} P|Q'$}
+      \end{prooftree}
+    \end{minipage}
+    \begin{minipage}{0.32\textwidth}
+      \begin{prooftree}
+        \AxiomC{\(Q \xrightarrow{\alpha} Q'\)}
+        \AxiomC{\(P \xrightarrow{\overline{\alpha}} P'\)}
+        \BinaryInfC{$P|Q \xrightarrow{\tau} P'|Q'$}
+      \end{prooftree}
+    \end{minipage}
+  \end{center}
+  \begin{prooftree}
+    \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+    \UnaryInfC{$P \setminus L \xrightarrow{\alpha} P' \setminus L$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+    \UnaryInfC{$P[f] \xrightarrow{f(\alpha)} P'[f]$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+    \UnaryInfC{$K \xrightarrow{f(\alpha)} P'$}
+  \end{prooftree}
+\end{frame}
+
+\subsection{Exercise V}
+\begin{frame}
+  \centering
+  \begin{block}{\centering Task}
+    \centering
+    Let \([\![\cdot]\!]\) be the encoding of value-passing CCS processes into pure CCS processes. Prove that this encoding is sound with respect to the operational semantics.
+  \end{block}\hfill\\
+  For all value-passing CCS processes \(P\) and \(P'\):\[P \xrightarrow{\alpha} P' \implies [\![ P ]\!] \xrightarrow{\alpha'} [\![ P' ]\!]\]
+\end{frame}
+
+
+
 
 \end{document}

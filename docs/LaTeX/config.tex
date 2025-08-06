@@ -1,19 +1,22 @@
 %**************************************************************
 % BEAMER THEME AND SETTINGS
 %**************************************************************
-\usetheme{Madrid}
-\usecolortheme{seahorse}
+\usetheme{Berlin}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
+\setbeamersize{text margin left=1cm, text margin right=1cm}
+\addtobeamertemplate{block begin}{}{\vspace{0.4cm}}
+\addtobeamertemplate{block end}{\vspace{0.4cm}}{}
+\logo{\includegraphics[height=.5cm]{./media/logo-unipd.png}}
+
 
 %**************************************************************
 % PACKAGES & GRAPHICS SETTINGS
 %**************************************************************
 \usepackage{graphicx}      % For \includegraphics
 \graphicspath{{media/}}    % Folder for image files
-
+\usepackage{bussproofs}
 \usepackage[dvipsnames]{xcolor}
-
 \usepackage{listings}      % Code listings
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -24,6 +27,7 @@
 \usepackage{tikz}
 \usepackage{array}
 \usepackage{syntax}
+\usepackage{mathtools}
 
 %**************************************************************
 % CODE LISTINGS SETTINGS
@@ -93,15 +97,3 @@
 \author{Jacopo Angeli (2130757)}
 \institute{Università degli Studi di Padova \\ Department of Mathematics \\ Master Degree in Computer Science}
 \date{Languages for Concurrency and Distribution \\ AY 2024\-25}
-
-%**************************************************************
-% TABLE SPACING
-%**************************************************************
-\renewcommand*{\arraystretch}{1.5}
-\def\always{\square}
-\def\next{\circ}
-\def\eventually{\lozenge}
-\def\AND{\wedge}
-\def\OR{\vee}
-\def\until{\mathcal{U}}
-\def\implies{\rightarrow}
