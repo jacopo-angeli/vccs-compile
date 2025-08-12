@@ -1,4 +1,4 @@
-\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=169, 10pt]{beamer}
 \input{config.tex}
 
 \begin{document}
@@ -19,10 +19,51 @@
 \section{Exercises}
 \subsection{Exercise C}
 \begin{frame}
+  \frametitle{Ecoding function}
+    Let \(\mathcal{A} \in \) CCS-VP channel set, \(\mathcal{K} \in \)CCS-VP process constants
+\end{frame}
+
+\begin{frame}
+  
+  \frametitle{Value-Passing CCS SOS}
+    \begin{prooftree}
+      \AxiomC{}
+      \RightLabel{\ttfamily\quad \(n \le 0\)}
+      \UnaryInfC{\(a(x).P \xrightarrow{a(n)}P[n/x]\)}
+    \end{prooftree}
+    \begin{prooftree}
+      \AxiomC{}
+      \RightLabel{\ttfamily\quad e valuates to n }
+      \UnaryInfC{\(\overline{a}(e).P \xrightarrow{\overline{a}(n)}P\)}
+    \end{prooftree}
+    \begin{prooftree}
+      \AxiomC{\(P[v_1/x_1,\ldots, v_n/x_n] \xrightarrow{\alpha} P'\)}
+      \RightLabel{\ttfamily\quad\(A(x_1, \ldots,x_n)\stackrel{\text{def}}{=}P\) and  \(n_i=v_i\)}
+      \UnaryInfC{\(A(e_1,\ldots,e_n)\xrightarrow{\alpha}P'\)}
+    \end{prooftree}
+    \begin{prooftree}
+      \AxiomC{\(P \xrightarrow{\alpha} P'\)}
+      \RightLabel{\ttfamily\quad bexp evaluates to true}
+      \UnaryInfC{\textbf{if} \(bexp\) \textbf{then} \(P\) \textbf{else} \(Q\xrightarrow{\alpha}P'\)}
+    \end{prooftree}
+    \begin{prooftree}
+      \AxiomC{\(Q \xrightarrow{\alpha} Q'\)}
+      \RightLabel{\ttfamily\quad bexp evaluates to false}
+      \UnaryInfC{\textbf{if} \(bexp\) \textbf{then} \(P\) \textbf{else} \(Q\xrightarrow{\alpha}Q'\)}
+    \end{prooftree}
+\end{frame}
+
+\begin{frame}
   \centering
-  \begin{block}{\centering Task}
-    \centering
-    Let \([\![\cdot]\!]\) be the encoding of value-passing CCS processes into pure CCS processes. Prove that this encoding is sound with respect to the operational semantics: For all value-passing CCS processes \(P\) and \(P'\):\[P \xrightarrow{\alpha} P' \implies [\![ P ]\!] \xrightarrow{\alpha'} [\![ P' ]\!]\]
+  \begin{block}{\centering Encoding}
+    Let \(\mathcal{A} \in CCS-VP\) channel set, \(\mathcal{K} \in CCS-VP\) process constants
+    Let \([\![\cdot]\!]: CCS-VP \rightarrow CCS\) as .
+    Then for all programs \(P \in CCS-VP\):
+    \begin{enumerate}
+      \item \(P \xrightarrow{\alpha} P' \implies [\![ P ]\!] \xrightarrow{\alpha'} [\![ Q ]\!]\)
+      \item \([\![ P ]\!] \xrightarrow{\hat{\alpha}} Q\) then \(\exists P'\) s.t. \(P \xrightarrow{\alpha} P'\) and \([\![ P' ]\!] = Q\)
+    \end {enumerate}
+    where\[\hat{\alpha} = \begin{cases}a_n &  \alpha = a(n) \\ \overline{a}_n & \alpha = \overline{a}(n) \\ \tau & \alpha = \tau\end{cases}\]
   \end{block}\hfill\\
   
 \end{frame}
