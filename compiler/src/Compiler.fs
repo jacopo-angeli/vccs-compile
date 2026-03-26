@@ -23,7 +23,7 @@ let getValuations (parameters: (string * Interval) list) : (string * int) list l
     cartesianProduct domains
 
 let compile (vccss: Vccs list) : Pccs list =
-    
+
     let rec compile (vccs: Vccs) : Pccs list =
         let rec compileP  (P : Vccs.P) (env: List<string*int>) : Pccs.P =
             let rec evaluateA (exp: Vccs.AExp) : int =
@@ -53,10 +53,12 @@ let compile (vccss: Vccs list) : Pccs list =
                 | Vccs.Silent ->
                     Pccs.Act (Pccs.Silent, compileP P env)
                 | Vccs.Input(channel, (var, interval)) ->
-                    Interval.toList interval
-                    |> List.map (
-                            fun value -> Pccs.Act(Pccs.Input (sprintf "%s_%d" channel value), compileP P ((var, value) :: env))
-                        )
+                    let values = Interval.toList interval
+                    if values = [] then
+                        failwithf "Empty interval for input channel '%s'" channel
+                    values
+                    |> List.map (fun value ->
+                            Pccs.Act(Pccs.Input (sprintf "%s_%d" channel value), compileP P ((var, value) :: env)))
                     |> List.reduce (fun x y -> Pccs.Sum(x,y))
 
                 | Vccs.Output(channel, expr) ->
@@ -66,12 +68,17 @@ let compile (vccss: Vccs list) : Pccs list =
 
                     Pccs.Act(Pccs.Output (sprintf "%s_%s" channel eval), compileP P env)
 
-            | Vccs.Conditional(bExp,P) -> 
-                if evaluateB bExp then compileP P env else Pccs.Nil
+            | Vccs.Conditional(bExp, thenP, elseP) ->
+                if evaluateB bExp then compileP thenP env else compileP elseP env
 
             | Vccs.Sum(P, P')-> Pccs.Sum(compileP P env, compileP P' env)
             | Vccs.Parallel(P,P')-> Pccs.Parallel(compileP P env, compileP P' env)
-            | Vccs.Restrict(P,L)-> Pccs.Restrict(compileP P env, L)
+            | Vccs.Restrict(P, typedChannels) ->
+                let expandedNames =
+                    typedChannels
+                    |> List.collect (fun (ch, interval) ->
+                        Interval.toList interval |> List.map (fun v -> sprintf "%s_%d" ch v))
+                Pccs.Restrict(compileP P env, expandedNames)
             | Vccs.Rename (P,f)->
                 let vact2pacts action =
                     match action with
@@ -93,7 +100,7 @@ let compile (vccss: Vccs list) : Pccs list =
 
             | Vccs.ConstCall (K, expressions) ->
                 let evals = List.map evaluateA expressions
-                let name = K + (evals |> List.map string |> List.map (sprintf "_%s") |> String.concat "")
+                let name = K + (evals |> List.map (sprintf "_%d") |> String.concat "")
                 Pccs.ConstCall name
 
             | Vccs.Nil -> Pccs.Nil       

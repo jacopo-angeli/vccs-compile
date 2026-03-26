@@ -43,6 +43,20 @@ let main argv =
                     printf "\n❌ Compilation fail:\n%O\n\n." e.Message
                     []
 
+            let rec collectRefs p =
+                match p with
+                | Pccs.ConstCall name -> [name]
+                | Pccs.Act(_, p) -> collectRefs p
+                | Pccs.Sum(p1, p2) | Pccs.Parallel(p1, p2) -> collectRefs p1 @ collectRefs p2
+                | Pccs.Restrict(p, _) | Pccs.Rename(p, _) -> collectRefs p
+                | Pccs.Nil -> []
+
+            let defined = pccss |> List.map fst |> Set.ofList
+            pccss |> List.iter (fun (_, body) ->
+                collectRefs body |> List.iter (fun name ->
+                    if not (Set.contains name defined) then
+                        printfn "⚠️  Warning: undefined reference '%s'" name))
+
             let outputFile = getOutputFileName inputFile
             let outputContent = String.concat "\n" (List.map Pccs.stringify pccss)
             File.WriteAllText(outputFile, outputContent)

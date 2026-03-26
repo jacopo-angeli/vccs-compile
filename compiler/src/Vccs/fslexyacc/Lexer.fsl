@@ -19,7 +19,8 @@ rule token = parse
     // Keywords
     | "tau"                 { TAU }
     | "if"                  { IF  }
-    | "then"                { THEN } 
+    | "then"                { THEN }
+    | "else"                { ELSE }
     | "nil"                 { NIL }
 
     | ident                 { IDENT (lexeme lexbuf) }
@@ -43,7 +44,7 @@ rule token = parse
     | "+"                   { PLUS }
     | "-"                   { MINUS }
     | "*"                   { TIMES }
-    | "/"                   { DIV }
+    | "/"                   { SLASH }
     | "=="                  { EQEQ }
     | "!="                  { NEQ }
     | "<="                  { LE }

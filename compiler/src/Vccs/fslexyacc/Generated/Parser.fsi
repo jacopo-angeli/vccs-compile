@@ -21,7 +21,6 @@ type token =
   | PLUS
   | MINUS
   | TIMES
-  | DIV
   | EQEQ
   | NEQ
   | LT
@@ -34,6 +33,7 @@ type token =
   | TAU
   | IF
   | THEN
+  | ELSE
   | PIPE
   | EOF
   | NUM of (int)
@@ -59,7 +59,6 @@ type tokenId =
     | TOKEN_PLUS
     | TOKEN_MINUS
     | TOKEN_TIMES
-    | TOKEN_DIV
     | TOKEN_EQEQ
     | TOKEN_NEQ
     | TOKEN_LT
@@ -72,6 +71,7 @@ type tokenId =
     | TOKEN_TAU
     | TOKEN_IF
     | TOKEN_THEN
+    | TOKEN_ELSE
     | TOKEN_PIPE
     | TOKEN_EOF
     | TOKEN_NUM
@@ -87,6 +87,8 @@ type nonTerminalId =
     | NONTERM_param
     | NONTERM_ty
     | NONTERM_idents
+    | NONTERM_typed_channels
+    | NONTERM_typed_channel
     | NONTERM_proc
     | NONTERM_proc_block
     | NONTERM_aexps

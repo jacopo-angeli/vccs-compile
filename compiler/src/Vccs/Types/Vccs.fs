@@ -29,10 +29,10 @@ type Action =
 
 type P =
     | Act of Action * P
-    | Conditional of BExp * P
+    | Conditional of BExp * P * P
     | Sum of P * P
     | Parallel of P * P
-    | Restrict of P * string list
+    | Restrict of P * (string * Interval) list
     | Rename of P * (Action * Action) list
     | ConstCall of string * AExp list 
     | Nil
@@ -83,10 +83,13 @@ let stringify ((K, expressions, P): Vccs) : string =
         | ConstCall(id, args) -> sprintf "%s(%s)" id (String.concat ", " (List.map A2S args))
         | Act(action, P) ->
             sprintf "%s . %s" (Act2S action) (P2S P)
-        | Conditional(b, p) -> sprintf "if %s then %s" (B2S b) (P2S p)
+        | Conditional(b, p, Nil) -> sprintf "if %s then %s" (B2S b) (P2S p)
+        | Conditional(b, p, q)   -> sprintf "if %s then %s else %s" (B2S b) (P2S p) (P2S q)
         | Sum(p1, p2) -> sprintf "(%s + %s)" (P2S p1) (P2S p2)
         | Parallel(p1, p2) -> sprintf "(%s | %s)" (P2S p1) (P2S p2)
-        | Restrict(p, names) -> sprintf "%s \\ {%s}" (P2S p) (String.concat ", " names)
+        | Restrict(p, tys) ->
+            let s = tys |> List.map (fun (ch, ty) -> sprintf "%s:%s" ch (printInterval ty)) |> String.concat ", "
+            sprintf "%s \\ {%s}" (P2S p) s
         | Rename(p, renames) ->
             let renStr =
                 renames
