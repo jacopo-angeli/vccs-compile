@@ -1,4 +1,4 @@
-﻿open System.IO
+open System.IO
 open System
 open FSharp.Text.Lexing
 open Compiler
@@ -11,11 +11,86 @@ let getOutputFileName (inputFile: string) =
     if String.IsNullOrEmpty(dir) then outputFileName
     else Path.Combine(dir, outputFileName)
 
+let rec collectRefs p =
+    match p with
+    | Pccs.ConstCall name -> [name]
+    | Pccs.Act(_, p) -> collectRefs p
+    | Pccs.Sum(p1, p2) | Pccs.Parallel(p1, p2) -> collectRefs p1 @ collectRefs p2
+    | Pccs.Restrict(p, _) | Pccs.Rename(p, _) -> collectRefs p
+    | Pccs.Nil -> []
+
+let parseInput input =
+    let lexbuf = LexBuffer<char>.FromString input
+    Parser.start Lexer.token lexbuf
+
+let repl () =
+    printfn "VP2Pccs interactive - VCCS to PCCS compiler"
+    printfn "Enter declarations ending with ';'. Multi-line input is supported."
+    printfn "Commands: #list, #clear, #quit"
+    printfn ""
+
+    let mutable defined: Set<string> = Set.empty
+    let mutable running = true
+
+    while running do
+        printf "vccs> "
+        Console.Out.Flush()
+
+        let mutable buffer = ""
+        let mutable complete = false
+
+        while not complete do
+            let line = Console.ReadLine()
+            if line = null then
+                complete <- true
+                running <- false
+            else
+                buffer <- buffer + line + "\n"
+                let trimmed = buffer.TrimEnd()
+                if trimmed.StartsWith "#" || trimmed.EndsWith ";" then
+                    complete <- true
+                else
+                    printf "    | "
+                    Console.Out.Flush()
+
+        let input = buffer.Trim()
+
+        match input with
+        | "#quit" | "#exit" ->
+            running <- false
+        | "#clear" ->
+            defined <- Set.empty
+            printfn "Context cleared."
+        | "#list" ->
+            if Set.isEmpty defined then
+                printfn "(no definitions)"
+            else
+                defined |> Set.iter (fun name -> printfn "  %s" name)
+        | "" -> ()
+        | _ ->
+            try
+                let vccss = parseInput input
+                let pccss =
+                    try compile vccss
+                    with e ->
+                        eprintfn "❌ Compilation error: %s" e.Message
+                        []
+                let batchDefined = pccss |> List.map fst |> Set.ofList
+                let allDefined = Set.union defined batchDefined
+                pccss |> List.iter (fun (_, body) ->
+                    collectRefs body |> List.iter (fun name ->
+                        if not (Set.contains name allDefined) then
+                            eprintfn "⚠️  Warning: undefined reference '%s'" name))
+                pccss |> List.iter (fun pccs -> printfn "%s" (Pccs.stringify pccs))
+                defined <- allDefined
+            with e ->
+                eprintfn "❌ Parse error: %s" e.Message
+
 [<EntryPoint>]
 let main argv =
     if argv.Length = 0 then
-        printfn "Usage: V2Pccs <inputfile>"
-        1
+        repl ()
+        0
     else
         let inputFile = argv.[0]
         if not (File.Exists inputFile) then
@@ -27,9 +102,9 @@ let main argv =
 
             let vccss =
                 try
-                    let Vccss = Parser.start Lexer.token lexbuf
+                    let vccss = Parser.start Lexer.token lexbuf
                     printfn "\n✅ Parsed successfully.\n"
-                    Vccss
+                    vccss
                 with e ->
                     printf "\n❌ Parsing fail:\n%O\n\n." e.Message
                     []
@@ -42,14 +117,6 @@ let main argv =
                 with e ->
                     printf "\n❌ Compilation fail:\n%O\n\n." e.Message
                     []
-
-            let rec collectRefs p =
-                match p with
-                | Pccs.ConstCall name -> [name]
-                | Pccs.Act(_, p) -> collectRefs p
-                | Pccs.Sum(p1, p2) | Pccs.Parallel(p1, p2) -> collectRefs p1 @ collectRefs p2
-                | Pccs.Restrict(p, _) | Pccs.Rename(p, _) -> collectRefs p
-                | Pccs.Nil -> []
 
             let defined = pccss |> List.map fst |> Set.ofList
             pccss |> List.iter (fun (_, body) ->
