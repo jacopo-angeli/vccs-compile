@@ -6,8 +6,7 @@ open Compiler
 let getOutputFileName (inputFile: string) =
     let dir = Path.GetDirectoryName(inputFile)
     let fileName = Path.GetFileNameWithoutExtension(inputFile)
-    let ext = Path.GetExtension(inputFile)
-    let outputFileName = $"{fileName}_ccs{ext}"
+    let outputFileName = $"{fileName}.ccs"
     if String.IsNullOrEmpty(dir) then outputFileName
     else Path.Combine(dir, outputFileName)
 

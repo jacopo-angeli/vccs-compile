@@ -1,13 +1,13 @@
 module Lexer
 
-# 1 "src/Vccs/fslexyacc/Lexer.fsl"
+# 1 "src/Vccs/Lexer.fsl"
  
 open FSharp.Text.Lexing
 open Parser
 
 let lexeme lexbuf = LexBuffer<_>.LexemeString lexbuf
 
-# 10 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 10 "src/Vccs/Generated/Lexer.fs"
 let trans : uint16[] array = 
     [| 
     (* State 0 *)
@@ -126,199 +126,199 @@ let rec _fslex_dummy () = _fslex_dummy()
 and token  lexbuf =
   match _fslex_tables.Interpret(0,lexbuf) with
   | 0 -> ( 
-# 16 "src/Vccs/fslexyacc/Lexer.fsl"
+# 16 "src/Vccs/Lexer.fsl"
                                              token lexbuf 
-# 131 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 131 "src/Vccs/Generated/Lexer.fs"
           )
   | 1 -> ( 
-# 17 "src/Vccs/fslexyacc/Lexer.fsl"
+# 17 "src/Vccs/Lexer.fsl"
                                              token lexbuf 
-# 136 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 136 "src/Vccs/Generated/Lexer.fs"
           )
   | 2 -> ( 
-# 20 "src/Vccs/fslexyacc/Lexer.fsl"
+# 20 "src/Vccs/Lexer.fsl"
                                              TAU 
-# 141 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 141 "src/Vccs/Generated/Lexer.fs"
           )
   | 3 -> ( 
-# 21 "src/Vccs/fslexyacc/Lexer.fsl"
+# 21 "src/Vccs/Lexer.fsl"
                                              IF  
-# 146 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 146 "src/Vccs/Generated/Lexer.fs"
           )
   | 4 -> ( 
-# 22 "src/Vccs/fslexyacc/Lexer.fsl"
+# 22 "src/Vccs/Lexer.fsl"
                                              THEN 
-# 151 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 151 "src/Vccs/Generated/Lexer.fs"
           )
   | 5 -> ( 
-# 23 "src/Vccs/fslexyacc/Lexer.fsl"
+# 23 "src/Vccs/Lexer.fsl"
                                              ELSE 
-# 156 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 156 "src/Vccs/Generated/Lexer.fs"
           )
   | 6 -> ( 
-# 24 "src/Vccs/fslexyacc/Lexer.fsl"
+# 24 "src/Vccs/Lexer.fsl"
                                              NIL 
-# 161 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 161 "src/Vccs/Generated/Lexer.fs"
           )
   | 7 -> ( 
-# 26 "src/Vccs/fslexyacc/Lexer.fsl"
+# 26 "src/Vccs/Lexer.fsl"
                                              IDENT (lexeme lexbuf) 
-# 166 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 166 "src/Vccs/Generated/Lexer.fs"
           )
   | 8 -> ( 
-# 27 "src/Vccs/fslexyacc/Lexer.fsl"
+# 27 "src/Vccs/Lexer.fsl"
                                              NUM (int (lexeme lexbuf)) 
-# 171 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 171 "src/Vccs/Generated/Lexer.fs"
           )
   | 9 -> ( 
-# 29 "src/Vccs/fslexyacc/Lexer.fsl"
+# 29 "src/Vccs/Lexer.fsl"
                                              EQ 
-# 176 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 176 "src/Vccs/Generated/Lexer.fs"
           )
   | 10 -> ( 
-# 30 "src/Vccs/fslexyacc/Lexer.fsl"
+# 30 "src/Vccs/Lexer.fsl"
                                              COLON 
-# 181 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 181 "src/Vccs/Generated/Lexer.fs"
           )
   | 11 -> ( 
-# 31 "src/Vccs/fslexyacc/Lexer.fsl"
+# 31 "src/Vccs/Lexer.fsl"
                                              COMMA 
-# 186 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 186 "src/Vccs/Generated/Lexer.fs"
           )
   | 12 -> ( 
-# 32 "src/Vccs/fslexyacc/Lexer.fsl"
+# 32 "src/Vccs/Lexer.fsl"
                                              SEMICOLON 
-# 191 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 191 "src/Vccs/Generated/Lexer.fs"
           )
   | 13 -> ( 
-# 33 "src/Vccs/fslexyacc/Lexer.fsl"
+# 33 "src/Vccs/Lexer.fsl"
                                              LPAREN 
-# 196 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 196 "src/Vccs/Generated/Lexer.fs"
           )
   | 14 -> ( 
-# 34 "src/Vccs/fslexyacc/Lexer.fsl"
+# 34 "src/Vccs/Lexer.fsl"
                                              RPAREN 
-# 201 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 201 "src/Vccs/Generated/Lexer.fs"
           )
   | 15 -> ( 
-# 35 "src/Vccs/fslexyacc/Lexer.fsl"
+# 35 "src/Vccs/Lexer.fsl"
                                              LBRACE 
-# 206 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 206 "src/Vccs/Generated/Lexer.fs"
           )
   | 16 -> ( 
-# 36 "src/Vccs/fslexyacc/Lexer.fsl"
+# 36 "src/Vccs/Lexer.fsl"
                                              RBRACE 
-# 211 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 211 "src/Vccs/Generated/Lexer.fs"
           )
   | 17 -> ( 
-# 37 "src/Vccs/fslexyacc/Lexer.fsl"
+# 37 "src/Vccs/Lexer.fsl"
                                              LBRACK 
-# 216 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 216 "src/Vccs/Generated/Lexer.fs"
           )
   | 18 -> ( 
-# 38 "src/Vccs/fslexyacc/Lexer.fsl"
+# 38 "src/Vccs/Lexer.fsl"
                                              RBRACK 
-# 221 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 221 "src/Vccs/Generated/Lexer.fs"
           )
   | 19 -> ( 
-# 39 "src/Vccs/fslexyacc/Lexer.fsl"
+# 39 "src/Vccs/Lexer.fsl"
                                              QUOTE 
-# 226 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 226 "src/Vccs/Generated/Lexer.fs"
           )
   | 20 -> ( 
-# 40 "src/Vccs/fslexyacc/Lexer.fsl"
+# 40 "src/Vccs/Lexer.fsl"
                                              DOT 
-# 231 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 231 "src/Vccs/Generated/Lexer.fs"
           )
   | 21 -> ( 
-# 41 "src/Vccs/fslexyacc/Lexer.fsl"
+# 41 "src/Vccs/Lexer.fsl"
                                              BACKSLASH 
-# 236 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 236 "src/Vccs/Generated/Lexer.fs"
           )
   | 22 -> ( 
-# 44 "src/Vccs/fslexyacc/Lexer.fsl"
+# 44 "src/Vccs/Lexer.fsl"
                                              PLUS 
-# 241 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 241 "src/Vccs/Generated/Lexer.fs"
           )
   | 23 -> ( 
-# 45 "src/Vccs/fslexyacc/Lexer.fsl"
+# 45 "src/Vccs/Lexer.fsl"
                                              MINUS 
-# 246 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 246 "src/Vccs/Generated/Lexer.fs"
           )
   | 24 -> ( 
-# 46 "src/Vccs/fslexyacc/Lexer.fsl"
+# 46 "src/Vccs/Lexer.fsl"
                                              TIMES 
-# 251 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 251 "src/Vccs/Generated/Lexer.fs"
           )
   | 25 -> ( 
-# 47 "src/Vccs/fslexyacc/Lexer.fsl"
+# 47 "src/Vccs/Lexer.fsl"
                                              SLASH 
-# 256 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 256 "src/Vccs/Generated/Lexer.fs"
           )
   | 26 -> ( 
-# 48 "src/Vccs/fslexyacc/Lexer.fsl"
+# 48 "src/Vccs/Lexer.fsl"
                                              EQEQ 
-# 261 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 261 "src/Vccs/Generated/Lexer.fs"
           )
   | 27 -> ( 
-# 49 "src/Vccs/fslexyacc/Lexer.fsl"
+# 49 "src/Vccs/Lexer.fsl"
                                              NEQ 
-# 266 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 266 "src/Vccs/Generated/Lexer.fs"
           )
   | 28 -> ( 
-# 50 "src/Vccs/fslexyacc/Lexer.fsl"
+# 50 "src/Vccs/Lexer.fsl"
                                              LE 
-# 271 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 271 "src/Vccs/Generated/Lexer.fs"
           )
   | 29 -> ( 
-# 51 "src/Vccs/fslexyacc/Lexer.fsl"
+# 51 "src/Vccs/Lexer.fsl"
                                              GE 
-# 276 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 276 "src/Vccs/Generated/Lexer.fs"
           )
   | 30 -> ( 
-# 52 "src/Vccs/fslexyacc/Lexer.fsl"
+# 52 "src/Vccs/Lexer.fsl"
                                              LT 
-# 281 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 281 "src/Vccs/Generated/Lexer.fs"
           )
   | 31 -> ( 
-# 53 "src/Vccs/fslexyacc/Lexer.fsl"
+# 53 "src/Vccs/Lexer.fsl"
                                              GT 
-# 286 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 286 "src/Vccs/Generated/Lexer.fs"
           )
   | 32 -> ( 
-# 54 "src/Vccs/fslexyacc/Lexer.fsl"
+# 54 "src/Vccs/Lexer.fsl"
                                              AND 
-# 291 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 291 "src/Vccs/Generated/Lexer.fs"
           )
   | 33 -> ( 
-# 55 "src/Vccs/fslexyacc/Lexer.fsl"
+# 55 "src/Vccs/Lexer.fsl"
                                              OR 
-# 296 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 296 "src/Vccs/Generated/Lexer.fs"
           )
   | 34 -> ( 
-# 56 "src/Vccs/fslexyacc/Lexer.fsl"
+# 56 "src/Vccs/Lexer.fsl"
                                              PIPE 
-# 301 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 301 "src/Vccs/Generated/Lexer.fs"
           )
   | 35 -> ( 
-# 57 "src/Vccs/fslexyacc/Lexer.fsl"
+# 57 "src/Vccs/Lexer.fsl"
                                              NOT 
-# 306 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 306 "src/Vccs/Generated/Lexer.fs"
           )
   | 36 -> ( 
-# 59 "src/Vccs/fslexyacc/Lexer.fsl"
+# 59 "src/Vccs/Lexer.fsl"
                                              EOF 
-# 311 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 311 "src/Vccs/Generated/Lexer.fs"
           )
   | 37 -> ( 
-# 60 "src/Vccs/fslexyacc/Lexer.fsl"
+# 60 "src/Vccs/Lexer.fsl"
                                              
                                                let pos = lexbuf.EndPos
                                                let err = sprintf "Illegal character  at line %d, column %d" pos.Line pos.Column
                                                failwith err
                                            
-# 320 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 320 "src/Vccs/Generated/Lexer.fs"
           )
   | _ -> failwith "token"
 
-# 3000000 "src/Vccs/fslexyacc/Generated/Lexer.fs"
+# 3000000 "src/Vccs/Generated/Lexer.fs"

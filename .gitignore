@@ -1,1 +1,8 @@
 .claude
+
+# .NET build output
+build/
+obj/
+
+# docs LaTeX build output
+docs/build/

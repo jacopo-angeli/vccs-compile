@@ -1,0 +1,290 @@
+\documentclass[t]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancybox}
+\usepackage{tikz}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  language=[Objective]Caml,
+  morekeywords={let, rec, match, with, type, for, do, if, then, else, function, open}
+}
+
+\title{Value-Passing to Pure CCS Transpiler}
+\subtitle{Languages for concurrency and distribution project}
+\author{Jacopo Angeli  2130757}
+\institute[UniPd]{Università degli studi di Padova}
+\date{March 2026}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+\begin{enumerate}
+  \item Architecture \& Implementation
+  \item Limitations
+  \item Demo
+\end{enumerate}
+\end{frame}
+
+\section{Architecture \& Implementation}
+
+  \begin{frame}
+    \frametitle{The Key Idea}
+
+    Value passing is encoded as a \textbf{choice of channel name}.
+
+    \vspace{0.5cm}
+
+    \textbf{Input action:}
+    $$a(x:[0,10]).P' \;\implies\; a_0.P' + a_1.P' + \ldots + a_{10}.P'$$
+    $$a(x:[0,10]).P'(x) \;\implies\; a_0.P_0 + a_1.P_1 + \ldots + a_{10}.P_{10}$$
+
+    \vspace{0.5cm}
+
+    \textbf{Output action}:
+    $$\overline{a}(10).P \;\implies\; \overline{a}_{10}.P$$
+
+    \vspace{0.5cm}
+
+    \textbf{Parameterised constants}:
+    $$Q(x:[0,5], y:[0,2]) \;\implies\; Q_{0.0},\; Q_{0.1},\; \ldots,\; Q_{5.2}$$
+  \end{frame}
+
+  \begin{frame}[c]
+  \frametitle{Architecture}
+
+    \begin{columns}[c]
+      \column{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=1.2cm, auto]
+        \node (VCCSProg) [draw, dotted, rectangle] {VCCS};
+        \node (Transpiler) [draw, rectangle, below of=VCCSProg] {Transpiler};
+        \node (CCSProg) [draw, dotted, rectangle, below of=Transpiler] {Pure CCS};
+
+        \draw [dotted, -latex] (VCCSProg) -- (Transpiler);
+        \draw [dotted, -latex] (Transpiler) -- (CCSProg);
+      \end{tikzpicture}
+
+      \column{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=1cm, auto]
+        \node (Input) [draw, dotted, rectangle] {\tiny Input file};
+        \node (Parser) [draw, rectangle, align=center, below of=Input] {Parser};
+        \node (VccsAST) [draw, rectangle, below of=Parser] {VCCS AST};
+        \node (Compiler) [draw, rectangle, below of=VccsAST] {Compiler};
+        \node (PccsAST) [draw, rectangle, below of=Compiler] {PCCS AST};
+        \node (Printer) [draw, rectangle, below of=PccsAST] {Pretty-Printer};
+        \node (Output) [draw, dotted, rectangle, below of=Printer] {\tiny Output file};
+
+        \draw [dotted, -latex] (Input) -- (Parser);
+        \draw [-latex] (Parser) -- (VccsAST);
+        \draw [-latex] (VccsAST) -- (Compiler);
+        \draw [-latex] (Compiler) -- (PccsAST);
+        \draw [-latex] (PccsAST) -- (Printer);
+        \draw [dotted, -latex] (Printer) -- (Output);
+      \end{tikzpicture}
+    \end{columns}
+    
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Project Structure}
+
+    \begin{itemize}
+      \item \texttt{src/Program.fs} — CLI entry point; file mode and interactive REPL
+      \item \texttt{src/Compiler.fs} — Translation logic from VCCS to PCCS
+      \item \texttt{src/Vccs/} — source-language AST, lexer and parser (fslex/fsyacc)
+      \item \texttt{src/Pccs/} — target-language AST and pretty-printer
+      \item \texttt{test/} — example inputs and expected outputs
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Environment}
+
+    \begin{columns}[t]
+      \column{0.5\textwidth}
+      \textbf{Built} on each input action:
+      \begin{lstlisting}
+compileP cont
+  ((var, value) :: env)
+      \end{lstlisting}
+      One copy of \texttt{env} per value in \texttt{[L,H]}.
+
+      \column{0.5\textwidth}
+      \textbf{Read} when evaluating expressions:
+      \begin{lstlisting}
+| Var x ->
+    List.find
+      (fun (n,_) -> n = x)
+      env |> snd
+      \end{lstlisting}
+      Closure over \texttt{compileP}'s \texttt{env}.
+    \end{columns}
+
+  \end{frame}
+
+\section{Limitations}
+\section{Demo}
+
+
+
+
+% \begin{frame}[fragile]
+% \frametitle{Cartesian Product of Parameter Domains}
+
+% Each parameterised constant is expanded into all concrete valuations:
+
+% \begin{lstlisting}
+% let rec cartesianProduct
+%     (domains: (string * int list) list) :
+%     (string * int) list list =
+%   match domains with
+%   | [] -> [ [] ]
+%   | (name, values) :: rest ->
+%       let restCombinations =
+%             cartesianProduct rest
+%       [ for value in values do
+%           for combo in restCombinations ->
+%             (name, value) :: combo
+%       ]
+% \end{lstlisting}
+
+% \small
+% \textbf{Complexity:} $n$ parameters with domain size $d$ produce $d^n$ definitions.
+% \end{frame}
+
+% \begin{frame}
+% \frametitle{Translation Rules}
+
+% \textbf{Input:}
+% $$a(x:[L,H]).P \;\implies\; \sum_{i=L}^{H} a_i.P[i/x]$$
+
+% \textbf{Output:}
+% $$\overline{a}(E).P \;\implies\; \overline{a}_v.P \quad \text{where } E \Rightarrow v \text{ under current env}$$
+
+% \textbf{Conditional} (guard evaluated statically):
+% $$\text{if } B \text{ then } P \text{ else } Q \;\implies\; P' \text{ or } Q' \text{ depending on } B$$
+
+% \textbf{Restriction} (channel set expanded):
+% $$P \setminus \{c:[L,H]\} \;\implies\; P' \setminus \{c_L, \ldots, c_H\}$$
+
+% \textbf{Sum, Parallel, Rename:} subterms translated recursively.
+% \end{frame}
+
+% \section{Demo}
+
+% \begin{frame}[fragile]
+% \frametitle{How to Use It}
+
+% \textbf{File mode:}
+% \begin{lstlisting}[language=bash]
+% cd compiler
+% dotnet run --project V2Pccs.fsproj ../test/full.txt
+% # Writes: ../test/full_ccs.txt
+% \end{lstlisting}
+
+% \textbf{Interactive mode (REPL):}
+% \begin{lstlisting}[language=bash]
+% dotnet run --project V2Pccs.fsproj
+% \end{lstlisting}
+% \begin{lstlisting}
+% vccs> P = a(x:[0,2]).P;
+% P = ((a_0.P + a_1.P) + a_2.P)
+% vccs> #list
+%   P
+% vccs> #quit
+% \end{lstlisting}
+% \end{frame}
+
+% \begin{frame}[fragile]
+% \frametitle{Worked Example}
+
+% \textbf{Source:}
+% \begin{verbatim}
+% P = a(x:[0,2]).Q(x);
+% Q(x:[0,1]) = tau.Q(x);
+% \end{verbatim}
+
+% \textbf{Compiled output:}
+% \begin{verbatim}
+% P = ((a_0.Q_0 + a_1.Q_1) + a_2.Q_2)
+% Q_0 = tau.Q_0
+% Q_1 = tau.Q_1
+% \end{verbatim}
+
+% \vspace{0.3cm}
+% \small
+% Each input branch of \texttt{P} routes to the matching concrete instance of \texttt{Q}.
+% \end{frame}
+
+% \section{Limitations \& Future Work}
+
+% \begin{frame}
+% \frametitle{Limitations}
+
+% \begin{enumerate}
+%   \item \textbf{Domain explosion} — large intervals blow up the output
+%   \begin{itemize}
+%     \item $x:[0,100],\; y:[0,100]$ produces $10{,}201$ definitions
+%   \end{itemize}
+
+%   \vspace{0.3cm}
+
+%   \item \textbf{Symbolic structure is lost} — the compiler discards the relationship between channels that share a value origin; model-checking results cannot easily be mapped back
+
+%   \vspace{0.3cm}
+
+%   \item \textbf{No static type checking} — undefined constant references are caught only after compilation, as warnings
+% \end{enumerate}
+% \end{frame}
+
+% \begin{frame}
+% \frametitle{Future Work}
+
+% \begin{itemize}
+%   \item \textbf{Partial evaluation} — detect and prune unreachable valuations before expansion
+%   \item \textbf{Bisimulation minimisation} — reduce the output automatically post-compilation
+%   \item \textbf{Better error reporting} — typed errors with source locations at parse and compile time
+%   \item \textbf{Extended test suite} — more examples covering all language constructs
+%   \item \textbf{Formal correctness proof} — bisimulation between VCCS and compiled PCCS terms
+% \end{itemize}
+% \end{frame}
+
+% \begin{frame}
+% \frametitle{Questions?}
+
+% \vspace{1cm}
+
+% \textbf{VP2Pccs in one sentence:}
+
+% \vspace{0.3cm}
+
+% Given a VCCS program with finite interval types, enumerate every possible valuation at compile time, replace value-passing with channel-name choice, and output standard Pure CCS.
+
+% \vspace{1cm}
+
+% \small
+% Source available in the L4CandD-project repository.
+% \end{frame}
+
+\end{document}
