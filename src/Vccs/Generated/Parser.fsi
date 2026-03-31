@@ -94,7 +94,6 @@ type nonTerminalId =
     | NONTERM_aexps
     | NONTERM_renames
     | NONTERM_rename
-    | NONTERM_rename_action
     | NONTERM_aexp
     | NONTERM_bexp
 /// This function maps tokens to integer indexes

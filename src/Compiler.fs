@@ -4,27 +4,22 @@ open Vccs
 open Pccs
 open Interval
 
-let getValuations (parameters: (string * Interval) list) : (string * int) list list =
-    
-    let domains: (string * int list) list =
-        parameters
-        |> List.map (fun (name, (lo, hi)) -> name, [lo .. hi])
+let compile (vccs_proc_list: Vccs list) : Pccs list =
 
-    
-    let rec cartesianProduct (domains: (string * int list) list) : (string * int) list list =
-        match domains with
-        | [] -> [ [] ]  
-        | (name, values) :: rest ->
-            let restCombinations = cartesianProduct rest
-            [ for value in values do
-                for combo in restCombinations ->
-                    (name, value) :: combo
-            ]
-    cartesianProduct domains
+    let getValuations (parameters: (string * Interval) list) : (string * int) list list =
+        let domains =
+            parameters |> List.map (fun (name, (lo, hi)) -> name, [lo .. hi])
+        let rec cartesianProduct domains =
+            match domains with
+            | [] -> [ [] ]
+            | (name, values) :: rest ->
+                [ for value in values do
+                    for combo in cartesianProduct rest ->
+                        (name, value) :: combo ]
+        cartesianProduct domains
 
-let compile (vccss: Vccs list) : Pccs list =
-
-    let rec compile (vccs: Vccs) : Pccs list =
+    let rec compileDecl (vccs_proc: Vccs) : Pccs list =
+        
         let rec compileP  (P : Vccs.P) (env: List<string*int>) : Pccs.P =
             let rec evaluateA (exp: Vccs.AExp) : int =
                 match exp with
@@ -62,11 +57,7 @@ let compile (vccss: Vccs list) : Pccs list =
                     |> List.reduce (fun x y -> Pccs.Sum(x,y))
 
                 | Vccs.Output(channel, expr) ->
-                    let eval:string = 
-                        try sprintf "%d" (evaluateA expr)
-                        with e -> printfn "%O" expr;match expr with Vccs.Var x -> sprintf "%s" x | _ -> failwith "Impossible" 
-
-                    Pccs.Act(Pccs.Output (sprintf "%s_%s" channel eval), compileP P env)
+                    Pccs.Act(Pccs.Output (sprintf "%s_%d" channel (evaluateA expr)), compileP P env)
 
             | Vccs.Conditional(bExp, thenP, elseP) ->
                 if evaluateB bExp then compileP thenP env else compileP elseP env
@@ -79,20 +70,13 @@ let compile (vccss: Vccs list) : Pccs list =
                     |> List.collect (fun (ch, interval) ->
                         Interval.toList interval |> List.map (fun v -> sprintf "%s_%d" ch v))
                 Pccs.Restrict(compileP P env, expandedNames)
-            | Vccs.Rename (P,f)->
-                let vact2pacts action =
-                    match action with
-                    | Vccs.Silent -> [Pccs.Silent]
-                    | Vccs.Input(ch, (_, ty)) ->
-                        Interval.toList ty |> List.map (fun v -> Pccs.Input (sprintf "%s_%d" ch v))
-                    | Vccs.Output(ch, expr) ->
-                        [Pccs.Output (sprintf "%s_%d" ch (evaluateA expr))]
-
+            | Vccs.Rename(P, f) ->
                 let expandedRenames =
-                    List.collect (fun (fromA, toA) ->
-                        List.allPairs (vact2pacts fromA) (vact2pacts toA))
-                            f
-
+                    f |> List.collect (fun (fromCh, toCh, interval) ->
+                        Interval.toList interval
+                        |> List.collect (fun v ->
+                            [ (Pccs.Input  (sprintf "%s_%d" fromCh v), Pccs.Input  (sprintf "%s_%d" toCh v))
+                              (Pccs.Output (sprintf "%s_%d" fromCh v), Pccs.Output (sprintf "%s_%d" toCh v)) ]))
                 Pccs.Rename(compileP P env, expandedRenames)
 
             | Vccs.ConstCall (K, []) ->
@@ -104,7 +88,8 @@ let compile (vccss: Vccs list) : Pccs list =
                 Pccs.ConstCall name
 
             | Vccs.Nil -> Pccs.Nil       
-        match vccs with 
+        
+        match vccs_proc with 
         | name, [], body ->
             let bodyCompiled = compileP body []
             [Pccs(name, bodyCompiled)]
@@ -116,5 +101,5 @@ let compile (vccss: Vccs list) : Pccs list =
                     Pccs(name, body))
                 (getValuations parameters)  
             
-    List.concat (List.map compile vccss)
+    vccs_proc_list |> List.collect compileDecl
     

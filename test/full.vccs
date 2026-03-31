@@ -1,5 +1,5 @@
 // Basic constant calls
-P = a(x:[0,10]).Q(x);
+P = a(x:[0,2]).Q(x);
 Q(x:[0,1], y:[0,5]) = Q(x);
 B = Q(1);
 
@@ -28,14 +28,14 @@ SumProc = A + B;
 DeepNest(x:[0,5]) = 'a(x).(if x > 0 then ( 'b(x + 1).(C(x + 1) + D) | 'c(x).tau.CondProc(x) ));
 //
 //// Renaming test
-RenameTest = SilentProc [a(x:[0,10]) / b(x:[0,10])];
+RenameTest = SilentProc [a / b : [0,10]];
 //
 //// Restriction test
 RestrictTest = ParProc \ {a:[10,20]};
 //
 //// ConstCall with complex args
-//ComplexArgs(x:[0,5], y:[2,2], z:[1,2], a:[1,1], b:[1,2]) = F(3 * x + 1, y / 2, z + (a - b));
+ComplexArgs(x:[0,5], y:[2,2], z:[1,2], a:[1,1], b:[1,2]) = F(3 * x + 1, y / 2, z + (a - b));
 //
 //// Combined expression with many constructs
-//Main(x : [0,10]) = 'step(x).tau.Done;
-//Mega = a(x:[0,10]).b(y:[0,10]).Main(x, y);
+Main(x : [0,10]) = 'step(x).tau.Done;
+Mega = a(x:[0,10]).b(y:[0,10]).Main(x, y);

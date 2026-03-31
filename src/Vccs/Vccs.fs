@@ -33,7 +33,7 @@ type P =
     | Sum of P * P
     | Parallel of P * P
     | Restrict of P * (string * Interval) list
-    | Rename of P * (Action * Action) list
+    | Rename of P * (string * string * Interval) list
     | ConstCall of string * AExp list 
     | Nil
 
@@ -93,7 +93,7 @@ let stringify ((K, expressions, P): Vccs) : string =
         | Rename(p, renames) ->
             let renStr =
                 renames
-                |> List.map (fun (a, b) -> sprintf "%s → %s" (Act2S a) (Act2S b))
+                |> List.map (fun (fromCh, toCh, ty) -> sprintf "%s / %s : %s" fromCh toCh (printInterval ty))
                 |> String.concat ", "
             sprintf "%s [%s]" (P2S p) renStr
         | Nil -> "0"
