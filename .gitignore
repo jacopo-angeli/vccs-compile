@@ -1,9 +1,10 @@
 .claude
 
 # .NET build output
-build/
+/build/
 obj/
 
 # docs LaTeX build output
-docs/build/
+docs/**/build/*
+!docs/**/build/*.pdf
 .fake
