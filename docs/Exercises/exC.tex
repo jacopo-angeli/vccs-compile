@@ -1,0 +1,396 @@
+\documentclass{article}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{bussproofs}
+\usepackage{extarrows}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{multicol}
+\usepackage{amsthm}
+
+\newcommand{\enc}{[\![}
+\newcommand{\cne}{]\!]}
+\newcommand{\N}{\mathbb{N}}
+\renewcommand{\arraystretch}{2}
+
+
+\begin{document}
+
+% ================================================================
+% CCS SEMANTICS
+% ================================================================
+
+\include{encoding.tex}
+
+% ================================================================
+% ENCODING
+% ================================================================
+
+\include{operational-semantics.tex}
+
+% ================================================================
+% THEOREM
+% ================================================================
+
+For all $P$ in CCS-VP
+\\[2em]
+\[\text{(i)}\quad P \xrightarrow{\alpha} P' \;\Longrightarrow\; \enc P\cne \xrightarrow{\hat\alpha} \enc P'\cne\]
+\[\text{(ii)}\quad \enc P\cne \xrightarrow{\hat\alpha} Q \;\Longrightarrow\; \exists P'.\; P \xrightarrow{\alpha} P' \;\wedge\; \enc P'\cne = Q\]
+\\[2em]
+\(\text{where }\;\hat\alpha = \begin{cases} a_m & \alpha = a(m) \\ \bar{a}_m & \alpha = \bar{a}(m) \\ \tau & \alpha = \tau \end{cases}\)
+\\[2em]
+
+% ================================================================
+% PROOF OVERVIEW
+% ================================================================
+
+Both implications are established by \emph{rule induction}, or induction on the depth of
+the derivation tree, which is the natural choice here because the transition relation
+is itself defined inductively by inference rules. The natural alternative would be 
+\emph{structural induction on $P$}, case-splitting on its syntactic form rather than 
+on the last rule fired. For most forms this coincides with rule induction, but it fails 
+cleanly at \textsc{Const}: a constant $K$ is a syntactic atom with no sub-term, so structural
+induction provides no smaller process to apply the IH to. Rule induction avoids this by
+measuring derivation depth, which strictly decreases at every premise, including the 
+unfolding step inside \textsc{Const}.
+
+For (i) we proceed by induction on the derivation of $P \xrightarrow{\alpha} P'$, with a case
+analysis on the last rule applied. The \emph{base cases} are the three axiom forms 
+of CCS-VP (input, output, and $\tau$ prefix): for each, the encoding $\enc P \cne$ is 
+a concrete CCS term that admits the required transition directly via the Act or Sum rule.
+For the \emph{inductive cases} (Sum, Par-L, Par-R, Com, Res, Ren, Const, Cond), the
+induction hypothesis supplies transitions for the shorter sub-derivation(s), and the
+matching CCS rule then closes the goal.
+
+For (ii) we instead proceed by induction on the derivation of $\enc P \cne \xrightarrow{\hat\alpha} Q$,
+with a case analysis on the syntactic form of $P$. For each form of $P$, the structure of 
+$\enc P \cne$ uniquely determines which CCS rule could have fired last; the induction 
+hypothesis then recovers a CCS-VP witness $P'$ with $P \xrightarrow{\alpha} P'$, and the 
+encoding equations confirm $\enc P' \cne = Q$.
+
+Throughout both directions the key invariant is that $\hat\alpha$ correctly bridges
+CCS-VP labels and CCS channels $a(m)\leftrightarrow a_m$,\; $\bar{a}(m)\leftrightarrow\bar{a}_m$,\; $\tau\leftrightarrow\tau$
+ensuring that complementary actions in CCS-VP correspond to complementary channels
+in CCS, so that synchronization is preserved by the encoding.
+
+\newpage
+
+% ================================================================
+% PROOF (i)
+% ================================================================
+
+\section*{\centering \(P \xrightarrow{\alpha} P' \;\Longrightarrow\; \enc P\cne \xrightarrow{\hat\alpha} \enc P'\cne\)}
+\vspace{.5cm}
+\subsubsection*{\centering\emph{Base cases}}
+\vspace{.5cm}
+\textbf{Input} $a(x).P \xrightarrow{a(m)} P\{^m/_x\}$:\\[1em]
+\begin{prooftree}
+    \AxiomC{$a_m.\enc P\{^m/_x\}\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne$}
+    \RightLabel{Sum}
+    \UnaryInfC{$\displaystyle\sum_{n \in \N} a_n.\enc P\{^n/_x\}\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne$}
+    \RightLabel{=}
+    \UnaryInfC{$\enc a(x).P\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne $}
+\end{prooftree}
+
+\textbf{Output} $\bar{a}(e).P \xrightarrow{\bar{a}(m)} P$, $e\downarrow m$:\\[1em]
+\begin{prooftree}
+    \AxiomC{}
+    \RightLabel{Act}
+    \UnaryInfC{$ \bar{a}_m.\enc P \cne \xrightarrow{\bar{a}_m} \enc P\cne$}
+    \RightLabel{=}
+    \UnaryInfC{$\enc \bar{a}(e).P \cne \xrightarrow{\bar{a}_m} \enc P \cne $}
+\end{prooftree}
+
+\textbf{Silent} $\tau.P \xrightarrow{\tau} P$:\\[1em]
+\begin{prooftree}
+    \AxiomC{}
+    \RightLabel{Act}
+    \UnaryInfC{$ \tau.\enc P \cne \xrightarrow{\tau} \enc P\cne$}
+    \RightLabel{=}
+    \UnaryInfC{$\enc \tau.P \cne \xrightarrow{\tau} \enc P \cne $}
+\end{prooftree}
+
+\vspace{.5cm}
+\subsubsection*{\centering\emph{Inductive cases}}
+
+\begin{prooftree}
+    \AxiomC{$P_i \xrightarrow{\alpha} P_i'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P_i \cne \xrightarrow{\hat\alpha} \enc P_i' \cne $}
+\end{prooftree}
+
+\vspace{.5cm}
+
+\textbf{Sum} $\displaystyle\sum_{i \in I} P_i \xrightarrow{\alpha} P_j' \qquad j \in I$:\\[1em]
+\begin{prooftree}
+    \AxiomC{$P_j \xrightarrow{\alpha} P_j'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P_j\cne \xrightarrow{\hat\alpha} \enc P_j'\cne$}
+    \RightLabel{Sum}
+    \UnaryInfC{$\displaystyle\sum_{i \in I}\enc P_i\cne \xrightarrow{\hat\alpha} \enc P_j'\cne$}
+    \RightLabel{$=$}
+    \UnaryInfC{$\enc\displaystyle\sum_{i \in I} P_i\cne \xrightarrow{\hat\alpha} \enc P_j'\cne$}
+\end{prooftree}
+
+\textbf{Par-L}: $P_1\mid P_2 \xrightarrow{\alpha} P_1'\mid P_2$ \\[1em]
+\begin{prooftree}
+  \AxiomC{$P_1 \xrightarrow{\alpha} P_1'$}
+  \RightLabel{IH}
+  \UnaryInfC{$\enc P_1\cne \xrightarrow{\hat\alpha} \enc P_1'\cne$}
+  \RightLabel{Par-L}
+  \UnaryInfC{$\enc P_1\cne \mid \enc P_2\cne \xrightarrow{\hat\alpha} \enc P_1'\cne \mid \enc P_2\cne$}
+  \RightLabel{$=$}
+  \UnaryInfC{$\enc P_1 \mid P_2\cne \xrightarrow{\hat\alpha} \enc P_1' \mid P_2\cne$}
+\end{prooftree}
+
+\textbf{Par-R}: $P_1\mid P_2 \xrightarrow{\alpha} P_1\mid P_2'$ \\[1em]
+\begin{prooftree}
+  \AxiomC{$P_2 \xrightarrow{\alpha} P_2'$}
+  \RightLabel{IH}
+  \UnaryInfC{$\enc P_2\cne \xrightarrow{\hat\alpha} \enc P_2'\cne$}
+  \RightLabel{Par-R}
+  \UnaryInfC{$\enc P_1\cne \mid \enc P_2\cne \xrightarrow{\hat\alpha} \enc P_1\cne \mid \enc P_2'\cne$}
+  \RightLabel{$=$}
+  \UnaryInfC{$\enc P_1 \mid P_2\cne \xrightarrow{\hat\alpha} \enc P_1 \mid P_2'\cne$}
+\end{prooftree}
+
+\textbf{Com} $P_1 \mid P_2 \xrightarrow{\tau} P_1' \mid P_2'$:\\[1em]
+\begin{prooftree}
+    \AxiomC{$P_1 \xrightarrow{a(m)} P_1'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P_1\cne \xrightarrow{a_m} \enc P_1'\cne$}
+    \AxiomC{$P_2 \xrightarrow{\bar{a}(m)} P_2'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P_2\cne \xrightarrow{\bar{a}_m} \enc P_2'\cne$}
+    \RightLabel{Com}
+    \BinaryInfC{$\enc P_1\cne \mid \enc P_2\cne \xrightarrow{\tau} \enc P_1'\cne \mid \enc P_2'\cne$}
+    \RightLabel{$=$}
+    \UnaryInfC{$\enc P_1 \mid P_2\cne \xrightarrow{\tau} \enc P_1' \mid P_2'\cne$}
+\end{prooftree}
+
+\textbf{Res} $P\setminus L \xrightarrow{\alpha} P'\setminus L$, $\alpha\notin L\cup\bar{L}$:\\[1em]
+\begin{prooftree}
+    \AxiomC{$P \xrightarrow{\alpha} P'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P\cne \xrightarrow{\hat\alpha} \enc P'\cne$}
+    \RightLabel{Res}
+    \UnaryInfC{$\enc P\cne \setminus \{a_m \mid a \in L,\,m \in \N\} \xrightarrow{\hat\alpha} \enc P'\cne \setminus \{a_m \mid a \in L,\,m \in \N\}$}
+    \RightLabel{$=$}
+    \UnaryInfC{$\enc P\setminus L\cne \xrightarrow{\hat\alpha} \enc P'\setminus L\cne$}
+\end{prooftree}
+
+\textbf{Ren} $P[f] \xrightarrow{f(\alpha)} P'[f]$, where $f'(a_m)=f(a)_m$ and $\widehat{f(\alpha)}=f'(\hat\alpha)$:\\[1em]
+\begin{prooftree}
+    \AxiomC{$P \xrightarrow{\alpha} P'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P\cne \xrightarrow{\hat\alpha} \enc P'\cne$}
+    \RightLabel{Ren}
+    \UnaryInfC{$\enc P\cne[f'] \xrightarrow{f'(\hat\alpha)} \enc P'\cne[f']$}
+    \RightLabel{$=$}
+    \UnaryInfC{$\enc P[f]\cne \xrightarrow{\widehat{f(\alpha)}} \enc P'[f]\cne$}
+\end{prooftree}
+
+\textbf{Const} $K(e_1,\ldots,e_h) \xrightarrow{\alpha} R$, $e_i\downarrow n_i$:\\[1em]
+\begin{prooftree}
+    \AxiomC{$P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} R$}
+    \RightLabel{IH}
+    \UnaryInfC{$K_{n_1,\ldots} \xrightarrow{\hat\alpha} \enc R\cne$}
+    \RightLabel{$=$}
+    \UnaryInfC{$\enc K(e_1,\ldots,e_h)\cne \xrightarrow{\hat\alpha} \enc R\cne$}
+\end{prooftree}
+
+\textbf{Cond} $\text{if }b\text{ then }P \xrightarrow{\alpha} P'$, $b$ true:\\[1em]
+\begin{prooftree}
+    \AxiomC{$P \xrightarrow{\alpha} P'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P\cne \xrightarrow{\hat\alpha} \enc P'\cne$}
+    \RightLabel{$=$}
+    \UnaryInfC{$\enc\text{if }b\text{ then }P\cne \xrightarrow{\hat\alpha} \enc P'\cne$}
+\end{prooftree}
+
+\newpage
+
+% ================================================================
+% PROOF (ii)
+% ================================================================
+
+\section*{\centering\[\enc P\cne \xrightarrow{\hat\alpha} Q \;\Longrightarrow\; \exists P'.\; P \xrightarrow{\alpha} P' \;\wedge\; \enc P'\cne = Q\]}
+\vspace{.5cm}
+\subsubsection*{\centering\emph{Base cases}}
+\vspace{.5cm}
+
+\textbf{Input} [\;$a(x).P$\;]\\[1em]
+\begin{prooftree}
+    \AxiomC{}
+    \RightLabel{Act}
+    \UnaryInfC{$a(x).P \xrightarrow{a(m)} P\{^m/_x\}$}
+\end{prooftree}
+$\enc a(x).P\cne = \textstyle\sum_{n\in\N} a_n.\enc P\{^n/_x\}\cne$.\\
+The only possible transition fires branch $a_m$ for some $m\in\N$, so $Q = \enc P\{^m/_x\}\cne$.\\
+Taking $P' = P\{^m/_x\}$ witnesses $P \xrightarrow{a(m)} P'$ and $\enc P'\cne = Q$.
+\vspace{.5cm}
+
+
+\textbf{Output} [\;$\bar{a}(e).P$\;]\\[1em]
+\begin{prooftree}
+    \AxiomC{$e \downarrow m$}
+    \RightLabel{Act}
+    \UnaryInfC{$\bar{a}(e).P \xrightarrow{\bar{a}(m)} P$}
+\end{prooftree}
+$\enc\bar{a}(e).P\cne = \bar{a}_m.\enc P\cne$ since $e\downarrow m$.\\
+The unique transition via Act forces $Q = \enc P\cne$.\\
+Taking $P' = P$ witnesses $P \xrightarrow{\bar{a}(m)} P'$ and $\enc P'\cne = Q$.
+\vspace{.5cm}
+
+\textbf{Silent} [\;$\tau.P$\;]\\[1em]
+\begin{prooftree}
+    \AxiomC{}
+    \RightLabel{Act}
+    \UnaryInfC{$\tau.P \xrightarrow{\tau} P$}
+\end{prooftree}
+$\enc\tau.P\cne = \tau.\enc P\cne$.\\
+The unique transition via Act forces $Q = \enc P\cne$.\\
+Taking $P' = P$ witnesses $P \xrightarrow{\tau} P'$ and $\enc P'\cne = Q$.
+\vspace{.5cm}
+
+\vspace{.5cm}
+\subsubsection*{\centering\emph{Inductive cases}}
+
+\begin{prooftree}
+    \AxiomC{$\enc P\cne \xrightarrow{\hat\alpha} Q$}
+    \RightLabel{IH}
+    \UnaryInfC{$P \xrightarrow{\alpha} P' \;\wedge\; \enc P'\cne = Q$}
+\end{prooftree}
+
+\vspace{.5cm}
+
+\textbf{Sum} $\left[\;\displaystyle\sum_{i \in I} P_i\; \right]$\\[1em]
+\begin{prooftree}
+    \AxiomC{$\enc P_j\cne \xrightarrow{\hat\alpha} Q$}
+    \RightLabel{IH}
+    \UnaryInfC{$P_j \xrightarrow{\alpha} P_j' \;\wedge\; \enc P_j'\cne = Q$}
+    \RightLabel{Sum}
+    \UnaryInfC{$\displaystyle\sum_{i \in I} P_i \xrightarrow{\alpha} P_j'$}
+\end{prooftree}
+Since $\enc\textstyle\sum_{i\in I} P_i\cne = \textstyle\sum_{i\in I}\enc P_i\cne$, any transition must originate from some branch $j \in I$.\\
+The IH recovers $P_j \xrightarrow{\alpha} P_j'$ with $\enc P_j'\cne = Q$.\\
+Taking $P' = P_j'$ witnesses $P \xrightarrow{\alpha} P'$ and $\enc P'\cne = Q$.
+\vspace{.5cm}
+
+\textbf{Par} $\left[\;P_1\mid P_2\;\right]$\\[.5em]
+$\enc P_1\mid P_2\cne = \enc P_1\cne\mid\enc P_2\cne$.\\ 
+Any transition of $\enc P_1\cne\mid\enc P_2\cne$ must have arisen from one of three CCS rules.
+\begin{itemize}
+  \item \textsc{Par-L}
+        \begin{prooftree}
+            \AxiomC{$\enc P_1\cne \xrightarrow{\hat\alpha} Q_1$}
+            \RightLabel{IH}
+            \UnaryInfC{$P_1 \xrightarrow{\alpha} P_1' \;\wedge\; \enc P_1'\cne = Q_1$}
+            \RightLabel{Par-L}
+            \UnaryInfC{$P_1 \mid P_2 \xrightarrow{\alpha} P_1' \mid P_2$}
+        \end{prooftree}
+        The transition on the left component gives $Q = Q_1\mid\enc P_2\cne$.\\
+        The IH recovers $P_1 \xrightarrow{\alpha} P_1'$ with $\enc P_1'\cne = Q_1$.\\
+        Taking $P' = P_1'\mid P_2$ witnesses $P \xrightarrow{\alpha} P'$ and $\enc P'\cne = \enc P_1'\cne\mid\enc P_2\cne = Q_1\mid\enc P_2\cne = Q$.
+  \item \textsc{Par-R}
+        \begin{prooftree}
+            \AxiomC{$\enc P_2\cne \xrightarrow{\hat\alpha} Q_2$}
+            \RightLabel{IH}
+            \UnaryInfC{$P_2 \xrightarrow{\alpha} P_2' \;\wedge\; \enc P_2'\cne = Q_2$}
+            \RightLabel{Par-R}
+            \UnaryInfC{$P_1 \mid P_2 \xrightarrow{\alpha} P_1 \mid P_2'$}
+        \end{prooftree}
+        The transition on the right component gives $Q = \enc P_1\cne\mid Q_2$.\\
+        The IH recovers $P_2 \xrightarrow{\alpha} P_2'$ with $\enc P_2'\cne = Q_2$.\\
+        Taking $P' = P_1\mid P_2'$ witnesses $P \xrightarrow{\alpha} P'$ and $\enc P'\cne = \enc P_1\cne\mid\enc P_2'\cne = \enc P_1\cne\mid Q_2 = Q$.
+  \item \textsc{Com}
+        \begin{prooftree}
+            \AxiomC{$\enc P_1\cne \xrightarrow{a_m} Q_1$}
+            \RightLabel{IH}
+            \UnaryInfC{$P_1 \xrightarrow{a(m)} P_1' \;\wedge\; \enc P_1'\cne = Q_1$}
+            \AxiomC{$\enc P_2\cne \xrightarrow{\bar{a}_m} Q_2$}
+            \RightLabel{IH}
+            \UnaryInfC{$P_2 \xrightarrow{\bar{a}(m)} P_2' \;\wedge\; \enc P_2'\cne = Q_2$}
+            \RightLabel{Com}
+            \BinaryInfC{$P_1 \mid P_2 \xrightarrow{\tau} P_1' \mid P_2'$}
+        \end{prooftree}
+        Complementary transitions $a_m$ and $\bar{a}_m$ map back to $a(m)$ and $\bar{a}(m)$.\\
+        The IH on each side recovers $P_1 \xrightarrow{a(m)} P_1'$ with $\enc P_1'\cne = Q_1$ and $P_2 \xrightarrow{\bar{a}(m)} P_2'$ with $\enc P_2'\cne = Q_2$.\\
+        Taking $P' = P_1'\mid P_2'$ witnesses $P \xrightarrow{\tau} P'$ and $\enc P'\cne = Q_1\mid Q_2 = Q$.
+\end{itemize}
+\vspace{.5cm}
+
+\textbf{Res} $\left[\;P\setminus L\;\right]$\\[1em]
+\begin{prooftree}
+    \AxiomC{$\enc P\cne \xrightarrow{\hat\alpha} Q_0$}
+    \RightLabel{IH}
+    \UnaryInfC{$P \xrightarrow{\alpha} P' \;\wedge\; \enc P'\cne = Q_0$}
+    \RightLabel{Res ($\alpha\notin L\cup\bar{L}$)}
+    \UnaryInfC{$P \setminus L \xrightarrow{\alpha} P' \setminus L$}
+\end{prooftree}
+$\enc P\setminus L\cne = \enc P\cne\setminus\{a_m\mid a\in L,\,m\in\N\}$, so the transition decomposes as $\enc P\cne \xrightarrow{\hat\alpha} Q_0$ with $Q = Q_0\setminus\{a_m\mid a\in L,\,m\in\N\}$.\\
+The transition being unblocked forces $\hat\alpha\notin\{a_m\mid a\in L\}$, hence $\alpha\notin L\cup\bar{L}$.\\
+The IH recovers $P \xrightarrow{\alpha} P'$ with $\enc P'\cne = Q_0$.\\
+Taking $P'\setminus L$ as the witness gives $P\setminus L \xrightarrow{\alpha} P'\setminus L$ and $\enc P'\setminus L\cne = \enc P'\cne\setminus\{a_m\mid a\in L\} = Q_0\setminus\{a_m\mid a\in L\} = Q$.
+\vspace{.5cm}
+
+\textbf{Ren} $\left[\;P[f]\;\right]$\\[1em]
+\begin{prooftree}
+    \AxiomC{$\enc P\cne \xrightarrow{\hat\alpha} Q_0$}
+    \RightLabel{IH}
+    \UnaryInfC{$P \xrightarrow{\alpha} P' \;\wedge\; \enc P'\cne = Q_0$}
+    \RightLabel{Ren}
+    \UnaryInfC{$P[f] \xrightarrow{f(\alpha)} P'[f]$}
+\end{prooftree}
+$\enc P[f]\cne = \enc P\cne[f']$, so the transition decomposes as $\enc P\cne \xrightarrow{\hat\alpha} Q_0$ with $Q = Q_0[f']$.\\
+The IH recovers $P \xrightarrow{\alpha} P'$ with $\enc P'\cne = Q_0$.\\
+Taking $P'[f]$ as the witness gives $P[f] \xrightarrow{f(\alpha)} P'[f]$ and $\enc P'[f]\cne = \enc P'\cne[f'] = Q_0[f'] = Q$.
+\vspace{.5cm}
+
+\textbf{Cond} $\left[\;\text{if }b\text{ then }P\;\right]$\\[1em]
+\begin{prooftree}
+    \AxiomC{$b \text{ true}$}
+    \AxiomC{$\enc P\cne \xrightarrow{\hat\alpha} Q$}
+    \RightLabel{IH}
+    \UnaryInfC{$P \xrightarrow{\alpha} P' \;\wedge\; \enc P'\cne = Q$}
+    \RightLabel{Cond}
+    \BinaryInfC{$\text{if }b\text{ then }P \xrightarrow{\alpha} P'$}
+\end{prooftree}
+$\enc\text{if }b\text{ then }P\cne = \enc P\cne$ when $b$ is true.\\
+The transition is directly on $\enc P\cne$.\\
+The IH recovers $P \xrightarrow{\alpha} P'$ with $\enc P'\cne = Q$.\\
+The IH witness $P'$ directly satisfies $P \xrightarrow{\alpha} P'$ and $\enc P'\cne = Q$.
+\vspace{.5cm}
+
+\textbf{Const} $\left[\;K(e_1,\ldots,e_h)\;\right]$\\[1em]
+\begin{prooftree}
+    \AxiomC{$e_1\downarrow n_1,\;\ldots,\;e_h\downarrow n_h$}
+    \AxiomC{$\enc P\{^{n_1}/_{x_1},\ldots\}\cne \xrightarrow{\hat\alpha} Q$}
+    \RightLabel{IH}
+    \UnaryInfC{$P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} R \;\wedge\; \enc R\cne = Q$}
+    \RightLabel{Const}
+    \BinaryInfC{$K(e_1,\ldots,e_h) \xrightarrow{\alpha} R$}
+\end{prooftree}
+$\enc K(e_1,\ldots,e_h)\cne = K_{n_1,\ldots} \overset{\text{def}}{=} \enc P\{^{n_i}/_{x_i}\}\cne$.\\
+The transition is on that encoding.\\
+The IH recovers $P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} R$ with $\enc R\cne = Q$.\\
+Taking $P' = R$ witnesses $K(e_1,\ldots,e_h) \xrightarrow{\alpha} P'$ and $\enc P'\cne = Q$.
+
+\newpage
+
+% ================================================================
+% IMPLEMENTATION REMARK
+% ================================================================
+
+\noindent\textbf{Remark (implementation).}
+The interpreter developed for this project encodes input actions over a bounded interval
+$[n_{\min}, n_{\max}] \subset \mathbb{N}$ rather than an infinite sum over all of $\mathbb{N}$.
+Concretely, $\enc a(x).P\cne = \sum_{n=n_{\min}}^{n_{\max}} a_n.\enc P\{^n/_x\}\cne$
+instead of $\sum_{n \in \mathbb{N}} a_n.\enc P\{^n/_x\}\cne$.
+The proof above remains structurally identical: the \textbf{Input} base case still
+applies the Sum rule and the $=$ step, and every inductive case goes through unchanged.
+The only difference is that operational correspondence holds under the assumption that
+all communicated values fall within the chosen interval; values outside it have no
+corresponding branch in the encoding and therefore no matching CCS transition.
+
+\end{document}

@@ -1,0 +1,60 @@
+% ---------------------------------------------------------------
+\section*{CCS Operational Semantics}
+% ---------------------------------------------------------------
+\vspace{1cm}
+  % ACT
+  \begin{prooftree}
+    \AxiomC{}
+    \RightLabel{\textsc{Act}}
+    \UnaryInfC{$\alpha.P \xrightarrow{\alpha} P$}
+  \end{prooftree}
+
+  % SUM
+  \begin{prooftree}
+    \AxiomC{$P_j \xrightarrow{\alpha} P_j'$}
+    \RightLabel{\textsc{Sum} \quad $j \in I$}
+    \UnaryInfC{$\displaystyle\sum_{i \in I} P_i \xrightarrow{\alpha} P_j'$}
+  \end{prooftree}
+
+  % PAR-L
+  \begin{prooftree}
+    \AxiomC{$P \xrightarrow{\alpha} P'$}
+    \RightLabel{\textsc{Par-L}}
+    \UnaryInfC{$P \mid Q \xrightarrow{\alpha} P' \mid Q$}
+  \end{prooftree}
+
+  % PAR-R
+  \begin{prooftree}
+    \AxiomC{$Q \xrightarrow{\alpha} Q'$}
+    \RightLabel{\textsc{Par-R}}
+    \UnaryInfC{$P \mid Q \xrightarrow{\alpha} P \mid Q'$}
+  \end{prooftree}
+
+  % COM
+    \begin{prooftree}
+      \AxiomC{$P \xrightarrow{\alpha} P'$}
+      \AxiomC{$Q \xrightarrow{\bar{\alpha}} Q'$}
+      \RightLabel{\textsc{Com}}
+      \BinaryInfC{$P \mid Q \xrightarrow{\tau} P' \mid Q'$}
+    \end{prooftree}
+
+  % RES
+  \begin{prooftree}
+    \AxiomC{$P \xrightarrow{\alpha} P'$}
+    \RightLabel{\textsc{Res} \quad $\alpha, \bar{\alpha} \notin L$}
+    \UnaryInfC{$P \setminus L \xrightarrow{\alpha} P' \setminus L$}
+  \end{prooftree}
+  
+  % RENAME
+  \begin{prooftree}
+    \AxiomC{$P \xrightarrow{\alpha} P'$}
+    \RightLabel{\textsc{Ren}}
+    \UnaryInfC{$P[f] \xrightarrow{f(\alpha)} P'[f]$}
+  \end{prooftree}
+
+  % CONST
+    \begin{prooftree}
+      \AxiomC{$P \xrightarrow{\alpha} P'$}
+      \RightLabel{\textsc{Const} \quad $K \overset{\text{def}}{=} P$}
+      \UnaryInfC{$K \xrightarrow{\alpha} P'$}
+    \end{prooftree}

@@ -6,3 +6,4 @@ obj/
 
 # docs LaTeX build output
 docs/build/
+.fake

@@ -1,0 +1,26 @@
+% ---------------------------------------------------------------
+\section*{Encoding $\enc\cdot\cne : \text{CCS-VP} \to \text{CCS}$}
+% ---------------------------------------------------------------
+
+\[
+    \begin{array}{rcll}
+        \enc a(x).P \cne                       & = & \sum_{n \in \N} a_n .  \enc  P\{^n/_x\} \cne                  & \\
+        \enc \bar{a}(e).P \cne                 & = & \bar{a}_m .  \enc  P \cne \quad                               & e \downarrow m \\
+        \enc \tau.P \cne                       & = & \tau .  \enc P \cne                                           & \\
+        \enc P \mid Q \cne                     & = & \enc P \cne  \mid  \enc Q \cne                                & \\
+        \enc \sum_{i \in I} P_i \cne           & = & \displaystyle\sum_{i \in I}  \enc P_i \cne                    & \\
+        \enc P \setminus L \cne                & = & \enc P \cne  \setminus \{a_m \mid a \in L, m \in \mathbb{N}\} & \\[6pt]
+        \enc P[f \cne ]                        & = & \enc P \cne [f'] \quad f'(a_m) = f(a)_m \\[6pt]
+        \enc \text{if } b \text{ then } P \cne & = & 
+            \begin{cases} 
+                \enc P \cne & b \text{ true} \\
+                0           & \text{otherwise} 
+            \end{cases} \\
+        \enc K(e_1,\ldots,e_h) \cne            & = & K_{n_1,\ldots,n_h}                                            & e_i \downarrow n_i \\
+        \\
+        K_{n_1,\ldots,n_h}                     & \overset{\text{def}}{=} & \enc P\{^{n_1}/_{x_1},\ldots,^{n_h}/_{x_h}\} \cne & \\
+                                               & & \text{where } K(x_1,\ldots,x_h) \overset{\text{def}}{=} P         &\\ 
+    \end{array}
+\]
+
+\newpage

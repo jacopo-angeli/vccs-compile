@@ -46,6 +46,7 @@
     \item Encoding
     \begin{enumerate}
       \item Overview
+      \item Input Language
       \item Encoding Rules
     \end{enumerate}
     \item Correctness
@@ -56,7 +57,6 @@
     \begin{enumerate}
       \item AST Types
       \item Compiler
-      \item Input Language
       \item Program
     \end{enumerate}
     \item Demo \& Limitations
@@ -78,9 +78,9 @@
       \begin{tikzpicture}[node distance=1cm, auto]
         \node (Input) [draw, dotted, rectangle] {\tiny Input file};
         \node (Parser) [draw, rectangle, align=center, below of=Input] {Parser};
-        \node (VccsAST) [draw, rectangle, below of=Parser] {VCCS AST};
+        \node (VccsAST) [draw, rectangle, below of=Parser] {CCS-VP AST};
         \node (Compiler) [draw, rectangle, below of=VccsAST] {Compiler};
-        \node (PccsAST) [draw, rectangle, below of=Compiler] {PCCS AST};
+        \node (PccsAST) [draw, rectangle, below of=Compiler] {CCS AST};
         \node (Printer) [draw, rectangle, below of=PccsAST] {Pretty-Printer};
         \node (Output) [draw, dotted, rectangle, below of=Printer] {\tiny Output file};
 
@@ -94,50 +94,102 @@
 
       \column{0.7\textwidth}
       \begin{itemize}
-        \item Implements the encoding $\enc{\cdot} : \text{VCCS} \to \text{PCCS}$ from lecture
+        \item Implements the encoding $\enc{\cdot} : \text{CCS-VP} \to \text{CCS}$ from lecture
         \item Input: value-passing CCS with \textbf{interval-typed} parameters
         \item Parser: built with FsYacc/FsLex
-        \item Compiler: structural recursion on the VCCS AST
-        \item Output: grounded Pure Synchronisation CCS
+        \item Compiler: structural recursion on the CCS-VP AST
+        \item Output: grounded Pure CCS
       \end{itemize}
 
     \end{columns}
 
   \end{frame}
 
-  % ─── 1.2 Encoding Rules ──────────────────────────────────────────────────────
-  % Formal definition of [[·]] with finite interval types throughout.
-  % This is the project's encoding, not the lecture's infinite version.
-  \begin{frame}
+  \begin{frame}[fragile,c]
+    \frametitle{Input Language}
+
+    \begin{columns}[c]
+      \column{0.55\textwidth}
+      \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+Declaration:
+  P = proc;
+  Q(x:[L,H], y:[L,H]) = proc;
+
+Process constructors:
+  'a(e).P             output
+  a(x:[L,H]).P        input
+  tau.P               silent action
+  P + Q               choice
+  P | Q               parallel
+  P \ {a:[L,H]}       restriction
+  P [a/b:[L,H]]       renaming
+  if b then P else Q  conditional
+  K(e1,...,en)        constant call
+  nil                 nil
+      \end{lstlisting}
+
+      \column{0.3\textwidth}
+      \textbf{Example}
+      \begin{lstlisting}[basicstyle=\ttfamily\Tiny]
+B  = in(x:[0,1]).'out(x).B;
+B' = 'in(0).B';
+
+Q(x:[0,2]) =
+  if x != 0 then tau.Q(x-1)
+  else 'done(0).nil;
+      \end{lstlisting}
+      \textbf{Result}
+      \begin{lstlisting}[basicstyle=\ttfamily\Tiny]
+B = in_0.'out_0.B + in_1.'out_1.B
+B' = 'in_0.B'
+
+Q_0 = 'done_0.0
+Q_1 = tau.Q_0
+Q_2 = tau.Q_1
+      \end{lstlisting}
+    \end{columns}
+
+  \end{frame}
+
+  \begin{frame}[c]
     \frametitle{Encoding Rules}
-
-    $\enc{\cdot} : \text{VCCS} \to \text{PCCS}$ \quad — all variables must be \textbf{closed} (bound before use).
-
-    \vspace{0.2cm}
-
-    \begin{tabular}{ll}
+    \centering
+    
+    \tiny
+    \begin{tabular}{rcl}
       $\enc{a(x{:}[L,H]).\,P}$
-        &$= \displaystyle\sum_{m=L}^{H}\; a_m \,.\, \enc{P\{^m/_x\}}$ \\[8pt]
+      & $=$ & $ \displaystyle\sum_{m=L}^{H}\; a_m \,.\, \enc{P\{^m/_x\}}$ \\[8pt]
       $\enc{\overline{a}(e).\,P}$
-        &$= \overline{a}_m \,.\, \enc{P}$ \quad ($e \!\downarrow\! m$) \\[4pt]
+      & $=$ & $ \overline{a}_m \,.\, \enc{P}$ \quad ($e \!\downarrow\! m$) \\[4pt]
       $\enc{\tau.\,P}$
-        &$= \tau \,.\, \enc{P}$ \\[4pt]
+      & $=$ & $ \tau \,.\, \enc{P}$ \\[4pt]
       $\enc{P \mid Q}$
-        &$= \enc{P} \mid \enc{Q}$ \\[4pt]
+      & $=$ & $ \enc{P} \mid \enc{Q}$ \\[4pt]
       $\enc{P \setminus \{c{:}[L,H]\}}$
-        &$= \enc{P} \setminus \{\,c_L,\; c_{L+1},\; \ldots,\; c_H\,\}$ \\[4pt]
+      & $=$ & $ \enc{P} \setminus \{\,c_L,\; c_{L+1},\; \ldots,\; c_H\,\}$ \\[4pt]
       $\enc{P\;[\,a / b {:} [L,H]\,]}$
-        &$= \enc{P}[f']$ \quad $f'(a_m)=b_m,\;\; f'(\overline{a}_m)=\overline{b}_m \quad m \in [L,H]$ \\[4pt]
+      & $=$ & $ \enc{P}[f']$ \quad $f'(a_m)=b_m,\;\; f'(\overline{a}_m)=\overline{b}_m \quad m \in [L,H]$ \\[4pt]
       $\enc{\text{if } b \text{ then } P \text{ else } Q}$
-        &$= \begin{cases} \enc{P} & b \text{ true} \\ \enc{Q} & b \text{ false}\end{cases}$ \\[8pt]
+      & $=$ & $ \begin{cases} \enc{P} & b \text{ true} \\ \enc{Q} & b \text{ false}\end{cases}$ \\[8pt]
       $\enc{K(e_1,\ldots,e_h)}$
-        &$= K_{n_1,\ldots,n_h}$ \quad ($e_i \!\downarrow\! n_i$) \\[4pt]
+      & $=$ & $ K_{n_1,\ldots,n_h}$ \quad ($e_i \!\downarrow\! n_i$) \\[4pt]
     \end{tabular}
-
-    \vspace{0.15cm}
-    \small $K_{n_1,\ldots,n_h} \;\overset{\text{def}}{=}\; \enc{P\{^{n_1}/_{x_1},\ldots,^{n_h}/_{x_h}\}}$
+    
+    \vspace{0.3cm}
+    
+    \tiny $K_{n_1,\ldots,n_h} \;\overset{\text{def}}{=}\; \enc{P\{^{n_1}/_{x_1},\ldots,^{n_h}/_{x_h}\}}$
     \quad where $K(x_1{:}[L_1,H_1],\ldots,x_h{:}[L_h,H_h]) \overset{\text{def}}{=} P$ and $n_i \in [L_i, H_i]$
+    
+    \vspace{0.6cm}
 
+    \small\textit{The lecture defines $\enc{\cdot}$ over $\mathbb{N}$, in the program each variable 
+    domain is restricted to a finite interval $[L,H]$, turning $\sum_{m \in \mathbb{N}}$ of the 
+    constant call case into $\sum_{m=L}^{H}$.}
+    
+    \vspace{.5cm}
+    
+    \small\textit{ Restriction and Renaming rules are also adapted with channel typing.}
+    
   \end{frame}
 
 \section{Correctness}
@@ -168,12 +220,12 @@
             branch $a_m$ fires. \checkmark
       \item \textbf{Output:} $\overline{a}(e).P \xrightarrow{\overline{a}(m)} P$, $e \!\downarrow\! m$.
             $\enc{\overline{a}(e).P} = \overline{a}_m.\enc{P}$;\; fires on $\overline{a}_m$. \checkmark
-      \item \textbf{$\tau$, Sum, Par, Res, Rel, Const:} immediate by IH + corresponding PCCS rules.
+      \item \textbf{$\tau$, Sum, Par, Res, Rel, Const:} immediate by IH + corresponding CCS rules.
     \end{itemize}
 
     \vspace{0.1cm}
     \textbf{Proof of (ii)} by induction on the derivation of $\enc{P} \xrightarrow{\hat{\alpha}} Q$:
-    each PCCS branch $a_m$ in $\enc{a(x).P}$ corresponds to exactly one VCCS transition
+    each CCS branch $a_m$ in $\enc{a(x).P}$ corresponds to exactly one CCS-VP transition
     $a(x).P \xrightarrow{a(m)} P\{^m/_x\}$, so the witness $P'$ is recovered uniquely.
 
   \end{frame}
@@ -184,54 +236,62 @@
   % Show Vccs.P vs Pccs.P side by side.
   % Key difference: Vccs carries typed variables and AExp; Pccs has only plain strings.
   % No Conditional in PCCS: guards are resolved at compile time.
-  \begin{frame}[fragile]
+  \begin{frame}[fragile,c]
     \frametitle{AST Types}
 
-    \begin{columns}[t]
+    \begin{columns}[c]
       \column{0.5\textwidth}
-      \textbf{Vccs.P} \quad (value-carrying)
-      \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+      \textbf{CCS-VP} \quad \texttt{(Vccs.P)}
+      \begin{lstlisting}[basicstyle=\ttfamily\Tiny]
+open Interval
+
 type Action =
-  | Input  of string
-           * (string * Interval)
-  | Output of string * AExp
-  | Silent
+    | Input of string * (string * Interval) 
+    | Output of string * AExp
+    | Silent
 
 type P =
-  | Act         of Action * P
-  | Conditional of BExp * P * P
-  | Sum         of P * P
-  | Parallel    of P * P
-  | Restrict    of P * (string * Interval) list
-  | Rename      of P
-               * (string * string * Interval) list
-  | ConstCall   of string * AExp list
-  | Nil
+    | ConstCall of string * AExp list 
+    | Act of Action * P
+    | Sum of P * P
+    | Parallel of P * P
+    | Restrict of P * (string * Interval) list
+    | Rename of P * (string * string * Interval) list
+    | Nil
+    | Conditional of BExp * P * P
+
+type Vccs = string * (string * Interval) list * P
       \end{lstlisting}
 
       \column{0.5\textwidth}
-      \textbf{Pccs.P} \quad (ground names)
-      \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+      \textbf{CCS} \quad \texttt{(Pccs.P)}
+      \begin{lstlisting}[basicstyle=\ttfamily\Tiny]
+type channel = string
+
 type Action =
-  | Input  of string  (* "a_3"   *)
-  | Output of string  (* "a_3"   *)
-  | Silent
+    | Input of string
+    | Output of string
+    | Silent
 
 type P =
-  | Act       of Action * P
-  (* no Conditional: resolved *)
-  | Sum       of P * P
-  | Parallel  of P * P
-  | Restrict  of P * string list
-  | ConstCall of string (* "Q_2_1" *)
-  | Nil
+    | ConstCall of string                
+    | Act of Action * P                
+    | Sum of P * P                   
+    | Parallel of P * P               
+    | Restrict of P * string list       
+    | Rename of P * (Action * Action) list  
+    | Nil
+
+
+type Pccs = string * P
       \end{lstlisting}
     \end{columns}
 
-    \vspace{0.2cm}
+    \vspace{1cm}
     \small
-    \texttt{Conditional} and \texttt{AExp} disappear: guards are evaluated
-    and branches selected at compile time under a concrete environment.
+    \centering
+    \texttt{Vccs} also contains standard declaration for arithmetic and boolean expressions.\\
+    \texttt{Conditional}, \texttt{BExp} and \texttt{AExp} disappear during compilation.
 
   \end{frame}
 
@@ -289,51 +349,7 @@ let rec compileP (P: Vccs.P)
   % ─── 3.3 Input Language ──────────────────────────────────────────────────────
   % VCCS concrete syntax: what the user writes in a .vccs file.
   % Two-column layout: left = syntax cheat-sheet, right = worked example.
-  \begin{frame}[fragile]
-    \frametitle{Input Language}
-
-    Built with \textbf{FsLexYacc}: \texttt{.fsl} + \texttt{.fsy} $\rightarrow$ F\# lexer and parser modules.
-
-    \vspace{0.2cm}
-
-    \begin{columns}[t]
-      \column{0.52\textwidth}
-      \textbf{Syntax}
-      \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
-(* declaration *)
-P = proc
-P(x:[0,5], y:[0,2]) = proc
-
-(* process *)
-'a(e).P         (* output *)
-a(x:[0,5]).P    (* input *)
-tau.P
-P + P           (* choice *)
-P | P           (* parallel *)
-P \ {c:[0,5]}   (* restriction *)
-P [a / b : [0,5]] (* renaming *)
-if b then P else P
-K(e1, e2)  |  nil
-      \end{lstlisting}
-
-      \column{0.48\textwidth}
-      \textbf{Example}
-      \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
-P = a(x:[0,2]).Q(x);
-
-Q(x:[0,1]) =
-  if x != 0
-  then tau.Q(x)
-  else 'done(0).nil;
-      \end{lstlisting}
-
-      \vspace{0.3cm}
-      \small Expressions \texttt{e}: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}\\
-      Guards \texttt{b}: \texttt{==}, \texttt{!=}, \texttt{<}, \texttt{>}, \texttt{\&\&}, \texttt{||}
-
-    \end{columns}
-
-  \end{frame}
+ 
 
   % ─── 3.4 Program ─────────────────────────────────────────────────────────────
   % Two modes: file mode and interactive REPL.
