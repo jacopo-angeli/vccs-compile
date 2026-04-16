@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage[a4paper, margin=2cm]{geometry}
 \usepackage{bussproofs}
 \usepackage{extarrows}
 \usepackage{mathtools}
@@ -7,9 +7,6 @@
 \usepackage{parskip}
 \usepackage{multicol}
 \usepackage{amsthm}
-
-\usepackage[T1]{fontenc}
-\usepackage[charter]{mathdesign}
 
 \newcommand{\enc}{[\![}
 \newcommand{\cne}{]\!]}
@@ -256,7 +253,8 @@ The unique transition via Act forces $Q = \enc P\cne$.\\
 Taking $P' = P$ witnesses $P \xrightarrow{\tau} P'$ and $\enc P'\cne = Q$.
 \vspace{.5cm}
 
-\vspace{.5cm}
+\newpage
+
 \subsubsection*{\centering\emph{Inductive cases}}
 
 \begin{prooftree}
@@ -385,7 +383,6 @@ Taking $P' = R$ witnesses $K(e_1,\ldots,e_h) \xrightarrow{\alpha} P'$ and $\enc 
 % IMPLEMENTATION REMARK
 % ================================================================
 
-\noindent\textbf{Remark (implementation).}
 The interpreter developed for this project encodes input actions over a bounded interval
 $[n_{\min}, n_{\max}] \subset \mathbb{N}$ rather than an infinite sum over all of $\mathbb{N}$.
 Concretely, $\enc a(x).P\cne = \sum_{n=n_{\min}}^{n_{\max}} a_n.\enc P\{^n/_x\}\cne$
