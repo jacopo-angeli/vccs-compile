@@ -85,12 +85,15 @@ in CCS, so that synchronization is preserved by the encoding.
 \vspace{.5cm}
 \textbf{Input} $a(x).P \xrightarrow{a(m)} P\{^m/_x\}$:\\[1em]
 \begin{prooftree}
-    \AxiomC{$a_m.\enc P\{^m/_x\}\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne$}
+    \AxiomC{}
+    \RightLabel{Act}
+    \UnaryInfC{$a_m.\enc P\{^m/_x\}\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne$}
     \RightLabel{Sum}
     \UnaryInfC{$\displaystyle\sum_{n \in \N} a_n.\enc P\{^n/_x\}\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne$}
     \RightLabel{=}
     \UnaryInfC{$\enc a(x).P\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne $}
 \end{prooftree}
+(Here $\alpha = a(m)$, so $\hat\alpha = a_m$.)
 
 \textbf{Output} $\bar{a}(e).P \xrightarrow{\bar{a}(m)} P$, $e\downarrow m$:\\[1em]
 \begin{prooftree}
@@ -100,6 +103,7 @@ in CCS, so that synchronization is preserved by the encoding.
     \RightLabel{=}
     \UnaryInfC{$\enc \bar{a}(e).P \cne \xrightarrow{\bar{a}_m} \enc P \cne $}
 \end{prooftree}
+(Here $\alpha = \bar{a}(m)$, so $\hat\alpha = \bar{a}_m$.)
 
 \textbf{Silent} $\tau.P \xrightarrow{\tau} P$:\\[1em]
 \begin{prooftree}
@@ -109,6 +113,7 @@ in CCS, so that synchronization is preserved by the encoding.
     \RightLabel{=}
     \UnaryInfC{$\enc \tau.P \cne \xrightarrow{\tau} \enc P \cne $}
 \end{prooftree}
+(Here $\alpha = \tau$, so $\hat\alpha = \tau$.)
 
 \vspace{.5cm}
 \subsubsection*{\centering\emph{Inductive cases}}
@@ -189,6 +194,7 @@ in CCS, so that synchronization is preserved by the encoding.
     \RightLabel{$=$}
     \UnaryInfC{$\enc P[f]\cne \xrightarrow{\widehat{f(\alpha)}} \enc P'[f]\cne$}
 \end{prooftree}
+The equality $\widehat{f(\alpha)} = f'(\hat\alpha)$ ensures the commutation of encoding and renaming.
 
 \textbf{Const} $K(e_1,\ldots,e_h) \xrightarrow{\alpha} R$, $e_i\downarrow n_i$:\\[1em]
 \begin{prooftree}
@@ -198,6 +204,7 @@ in CCS, so that synchronization is preserved by the encoding.
     \RightLabel{$=$}
     \UnaryInfC{$\enc K(e_1,\ldots,e_h)\cne \xrightarrow{\hat\alpha} \enc R\cne$}
 \end{prooftree}
+The transition follows from unfolding the constant $K_{n_1,\ldots} \overset{\text{def}}{=} \enc P\{^{n_1}/_{x_1},\ldots\}\cne$ and applying the IH to the body; derivation depth strictly decreases at each unfolding step.
 
 \textbf{Cond} $\text{if }b\text{ then }P \xrightarrow{\alpha} P'$, $b$ true:\\[1em]
 \begin{prooftree}
@@ -225,8 +232,15 @@ in CCS, so that synchronization is preserved by the encoding.
     \RightLabel{Act}
     \UnaryInfC{$a(x).P \xrightarrow{a(m)} P\{^m/_x\}$}
 \end{prooftree}
-$\enc a(x).P\cne = \textstyle\sum_{n\in\N} a_n.\enc P\{^n/_x\}\cne$.\\
-The only possible transition fires branch $a_m$ for some $m\in\N$, so $Q = \enc P\{^m/_x\}\cne$.\\
+$\enc a(x).P\cne = \textstyle\sum_{n\in\N} a_n.\enc P\{^n/_x\}\cne$; the unique transition selects branch $m$ via Act and Sum:
+\begin{prooftree}
+    \AxiomC{}
+    \RightLabel{Act}
+    \UnaryInfC{$a_m.\enc P\{^m/_x\}\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne$}
+    \RightLabel{Sum (branch $m$)}
+    \UnaryInfC{$\textstyle\sum_{n\in\N} a_n.\enc P\{^n/_x\}\cne \xrightarrow{a_m} \enc P\{^m/_x\}\cne$}
+\end{prooftree}
+So $Q = \enc P\{^m/_x\}\cne$.\\
 Taking $P' = P\{^m/_x\}$ witnesses $P \xrightarrow{a(m)} P'$ and $\enc P'\cne = Q$.
 \vspace{.5cm}
 
@@ -345,7 +359,8 @@ Taking $P'\setminus L$ as the witness gives $P\setminus L \xrightarrow{\alpha} P
 \end{prooftree}
 $\enc P[f]\cne = \enc P\cne[f']$, so the transition decomposes as $\enc P\cne \xrightarrow{\hat\alpha} Q_0$ with $Q = Q_0[f']$.\\
 The IH recovers $P \xrightarrow{\alpha} P'$ with $\enc P'\cne = Q_0$.\\
-Taking $P'[f]$ as the witness gives $P[f] \xrightarrow{f(\alpha)} P'[f]$ and $\enc P'[f]\cne = \enc P'\cne[f'] = Q_0[f'] = Q$.
+Taking $P'[f]$ as the witness gives $P[f] \xrightarrow{f(\alpha)} P'[f]$ and $\enc P'[f]\cne = \enc P'\cne[f'] = Q_0[f'] = Q$.\\
+The equality $\widehat{f(\alpha)} = f'(\hat\alpha)$ ensures the commutation of encoding and renaming: the CCS output label $f'(\hat\alpha)$ matches $\widehat{f(\alpha)}$ as required.
 \vspace{.5cm}
 
 \textbf{Cond} $\left[\;\text{if }b\text{ then }P\;\right]$\\[1em]
@@ -373,7 +388,7 @@ The IH witness $P'$ directly satisfies $P \xrightarrow{\alpha} P'$ and $\enc P'\
     \BinaryInfC{$K(e_1,\ldots,e_h) \xrightarrow{\alpha} R$}
 \end{prooftree}
 $\enc K(e_1,\ldots,e_h)\cne = K_{n_1,\ldots} \overset{\text{def}}{=} \enc P\{^{n_i}/_{x_i}\}\cne$.\\
-The transition is on that encoding.\\
+The transition follows from unfolding the constant $K_{n_1,\ldots}$ and applying the IH to its body; derivation depth strictly decreases at each unfolding step.\\
 The IH recovers $P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} R$ with $\enc R\cne = Q$.\\
 Taking $P' = R$ witnesses $K(e_1,\ldots,e_h) \xrightarrow{\alpha} P'$ and $\enc P'\cne = Q$.
 

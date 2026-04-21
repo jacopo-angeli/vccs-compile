@@ -1,261 +1,178 @@
 \documentclass{article}
-\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage[a4paper, margin=2cm]{geometry}
 \usepackage{bussproofs}
-\usepackage{extarrows}
 \usepackage{mathtools}
 \usepackage{amssymb}
 \usepackage{parskip}
-\usepackage{multicol}
 \usepackage{amsthm}
 
-\renewcommand{\arraystretch}{2}
-\newtheorem*{theorem}{Theorem}
-\newtheorem*{definition}{Definition}
 
 \begin{document}
 
-% ================================================================
-% GOAL
-% ================================================================
+Given a CCS process $P$ and a finite set of channel names $L \subseteq \mathcal{A}$,
+define the operator $\tau_L$ that \emph{hides} every action on a channel in $L$
+by replacing it with a silent $\tau$ step. Formally, $\tau_L$ is characterized by:
 
-\noindent\textbf{Goal.}
-Define in pure CCS an operator $\tau_L(P)$ satisfying, for a finite set of channel
-names $L$:
 \[
-  \begin{array}{rcll}
-    \tau_L(a.P)              & = & \tau.\tau_L(P)              & a \in L              \\
-    \tau_L(\bar{a}.P)        & = & \tau.\tau_L(P)              & a \in L              \\
-    \tau_L(\alpha.P)         & = & \alpha.\tau_L(P)            & \alpha \notin L \cup \bar{L} \\
-    \tau_L(P + Q)            & = & \tau_L(P) + \tau_L(Q)       &                      \\
-    \tau_L(P \mid Q)         & = & \tau_L(P) \mid \tau_L(Q)    &                      \\
-  \end{array}
+  \frac{P \xrightarrow{\alpha} P'}{\tau_L(P) \xrightarrow{\tau} \tau_L(P')}
+  \quad \alpha \in L \cup \bar{L}
+  \qquad
+  \frac{P \xrightarrow{\alpha} P'}{\tau_L(P) \xrightarrow{\alpha} \tau_L(P')}
+  \quad \alpha \notin L \cup \bar{L}
 \]
 
-% ================================================================
-% CONSTRUCTION
-% ================================================================
-
-\noindent\textbf{Construction.}
-For each $a \in L$, let $b_a$ be a fresh channel name not appearing in $P$ or $L$.
-Define the \emph{absorber} process by the recursive CCS equation:
+Show that there exists a CCS context $C_L[\,\cdot\,]$ such that:
 \[
-  A_a \;\overset{\text{def}}{=}\; b_a.A_a \;+\; \bar{b}_a.A_a
+\tau_L(P) \sim C_L[P]
+\quad \text{for all CCS processes } P
 \]
-which persistently offers to synchronize on $b_a$ in either direction and loops back.
-Write $A_L = \prod_{a \in L} A_a$ for the parallel composition of all absorbers.
-The encoding is:
-\[
-  \tau_L(P) \;\overset{\text{def}}{=}\;
-  \Bigl(\,P\bigl[\,b_a/a \;\mid\; a \in L\,\bigr]
-  \;\mid\; A_L\,\Bigr)
-  \;\setminus\; \{\,b_a \mid a \in L\,\}
-\]
+where $\sim$ denotes weak bisimilarity.
 
-\noindent\textit{Intuition.}
-Each channel $a \in L$ is renamed to a fresh $b_a$.
-The absorber $A_a$ always offers the complementary action on $b_a$, forcing any
-visible move on $b_a$ to immediately synchronize and produce $\tau$.
-Restriction hides $b_a$ entirely, so no external observer can see it.
+The context requires every visible action $a \in L$ to be a $\tau$, using only CCS.
+The only source of $\tau$ in CCS is the \textsc{Com} rule: two parallel processes 
+synchronize on complementary channels $a$ and $\bar{a}$, producing $\tau$. 
 
-\bigskip
+\begin{enumerate}
+  \item Rename every $a \in L$ to a fresh private channel $b_a$.
+        This gets $L$ out of the way without blocking it.
+        \[C_L[P] = P^*\]
+        where
+        \[P^* = P[\,b_a/a \mid a \in L\,]\]
+  \item Run in parallel a partner that is \emph{always} ready to synchronize 
+        on $b_a$, in either direction, and for each $a \in L$. 
+        \[C_L[P] = P^* \mid A_L\]
+        where
+        \[A_L = \prod_{a \in L} A_a\]
+        and
+        \[ A_a \;\overset{\text{def}}{=}\; b_a.A_a + \bar{b}_a.A_a \]
+  \item Restrict on $\{b_a\}$ to make $b_a$ invisible from the outside.
+        \[ C_L[P] = (P^* \mid A_L)\setminus\{b_a \mid a \in L\} \]
+\end{enumerate}
 
-% ================================================================
-% VERIFICATION
-% ================================================================
+\textbf{Claim.} For all $P \in \text{CCS}$, $\tau_L(P) \sim C_L[P]$.
 
-\noindent\textbf{Verification} — we check each characteristic equation by exhibiting
-the required CCS derivation.
+\begin{proof}
+  Two processes are weakly bisimilar if every transition of one can be matched by the other,
+  up to silent $\tau$ steps, and the resulting states remain related indefinitely.
+  Rather than reasoning about $\sim$ abstractly, we certify this directly: it suffices to
+  exhibit a concrete relation $R$ containing the pairs we wish to relate and verify that
+  $R$ itself has the mutual-matching property $(*)$ below. Since $\sim$ is the largest
+  such relation, any verified $R$ is contained in $\sim$, which gives us our conclusion.
 
-\medskip
-\noindent\textbf{IH} (for the inductive cases):
-assume $\tau_L(P_0)$ behaves correctly for all strict subprocesses $P_0$.
-Write $P_0^* = P_0[b_a/a \mid a \in L]$ for brevity.
+  We therefore take
+  \[
+    R \;=\; \bigl\{\,(\tau_L(P),\; C_L[P]) \;\bigm|\; P \in \text{CCS}\,\bigr\} \;\cup\; {\sim}
+  \]
+  The $\cup\;\{\sim\}$ is a technical convenience: after each matching step the residual pair
+  need only land back in $R$, and including $\sim$ means any pair already known to be
+  bisimilar closes the check immediately without infinite regression.
 
-\bigskip
+  Formally, $\sim$ is characterized by: for all processes $P$, $Q$,
+  \[
+    \begin{array}{rcl}
+      P \sim Q &
+      \iff &
+      \begin{array}{l}
+        \text{if } P \xrightarrow{\alpha} P' \;\text{ then }\; \exists\, Q'.\; Q \xRightarrow{\alpha} Q' \;\text{ and }\; P' \sim Q'\\[.5em]
+        \text{if } Q \xrightarrow{\alpha} Q' \;\text{ then }\; \exists\, P'.\; P \xRightarrow{\alpha} P' \;\text{ and }\; P' \sim Q'
+      \end{array}
+    \end{array}
+    \tag{$*$}
+  \]
+  where $\xRightarrow{\alpha}$ denotes weak transition (zero or more $\tau$ steps, 
+  then $\alpha$, then zero or more $\tau$ steps; for $\alpha = \tau$ this includes 
+  doing nothing).
+  
+  We now show $R$ satisfies $(*)$. 
+  
+  \newpage 
 
-\noindent\textbf{Case} $P = a.Q$, $a \in L$:
+  Take any pair $(\tau_L(P),\, C_L[P]) \in R$.
 
-\noindent By the renaming, $(a.Q)^* = b_a.Q^*$.
-The absorber $A_a = b_a.A_a + \bar{b}_a.A_a$ offers $\bar{b}_a$ via its right branch:
+  \begin{itemize}
+    \item \textbf{Direction (1): suppose $\tau_L(P) \xrightarrow{\mu} \tau_L(P')$.}\\
+          By the defining rules of $\tau_L$ there are two cases:
+          \begin{itemize}
+            \item \textit{Case $\mu = \tau$, $\alpha \in L$}:
+                  Renaming gives $P^* \xrightarrow{b_a} P'^*$; the right branch of $A_a$ provides $\bar{b}_a$:
+                  \begin{prooftree}
+                    \AxiomC{$P \xrightarrow{a} P'$}
+                    \RightLabel{Ren}
+                    \UnaryInfC{$P^* \xrightarrow{b_a} P'^*$}
+                    \AxiomC{}
+                    \RightLabel{Act}
+                    \UnaryInfC{$\bar{b}_a.A_a \xrightarrow{\bar{b}_a} A_a$}
+                    \RightLabel{Sum}
+                    \UnaryInfC{$A_a \xrightarrow{\bar{b}_a} A_a$}
+                    \RightLabel{Par-L}
+                    \UnaryInfC{$A_L \xrightarrow{\bar{b}_a} A_a \mid A_{L\setminus\{a\}}$}
+                    \RightLabel{Com}
+                    \BinaryInfC{$P^* \mid A_L \xrightarrow{\tau} P'^* \mid A_L$}
+                    \RightLabel{Res}
+                    \UnaryInfC{$C_L[P] \xrightarrow{\tau} C_L[P']$}
+                  \end{prooftree}
+                  So $C_L[P] \xRightarrow{\tau} C_L[P']$ and $(\tau_L(P'), C_L[P']) \in R$.
+                  The case $\alpha = \bar{a}$ is symmetric: renaming gives $P^* \xrightarrow{\bar{b}_a} P'^*$
+                  and the left branch of $A_a$ provides the complementary $b_a$; the same tree applies.
 
-\begin{prooftree}
-  \AxiomC{}
-  \RightLabel{\textsc{Act}}
-  \UnaryInfC{$b_a.Q^* \xrightarrow{b_a} Q^*$}
-  \AxiomC{}
-  \RightLabel{\textsc{Act}}
-  \UnaryInfC{$\bar{b}_a.A_a \xrightarrow{\bar{b}_a} A_a$}
-  \RightLabel{\textsc{Sum}}
-  \UnaryInfC{$A_a \xrightarrow{\bar{b}_a} A_a$}
-  \RightLabel{\textsc{Par-L}}
-  \UnaryInfC{$A_L \xrightarrow{\bar{b}_a} A_a \mid A_{L\setminus\{a\}}$}
-  \RightLabel{\textsc{Com}}
-  \BinaryInfC{$b_a.Q^* \mid A_L \xrightarrow{\tau} Q^* \mid A_L$}
-  \RightLabel{\textsc{Res} \quad $\tau \notin \{b_a \mid a \in L\}$}
-  \UnaryInfC{$(b_a.Q^* \mid A_L)\setminus\{b_a \mid a \in L\} \xrightarrow{\tau}
-              (Q^* \mid A_L)\setminus\{b_a \mid a \in L\}$}
-\end{prooftree}
-The right-hand side is $(Q^* \mid A_L)\setminus\{b_a \mid a \in L\} = \tau_L(Q)$.
-Hence $\tau_L(a.Q) \xrightarrow{\tau} \tau_L(Q)$, matching $\tau.\tau_L(Q)$. $\checkmark$
+            \item \textit{Case $\mu = \alpha \notin L \cup \bar{L}$}:
+                  Renaming leaves $\alpha$ unchanged and restriction does not block it:
+                  \begin{prooftree}
+                    \AxiomC{$P \xrightarrow{\alpha} P'$}
+                    \RightLabel{Ren}
+                    \UnaryInfC{$P^* \xrightarrow{\alpha} P'^*$}
+                    \RightLabel{Par-L}
+                    \UnaryInfC{$P^* \mid A_L \xrightarrow{\alpha} P'^* \mid A_L$}
+                    \RightLabel{Res,\; $\alpha \notin \{b_a \mid a \in L\}$}
+                    \UnaryInfC{$C_L[P] \xrightarrow{\alpha} C_L[P']$}
+                  \end{prooftree}
+                  So $C_L[P] \xRightarrow{\alpha} C_L[P']$ and $(\tau_L(P'), C_L[P']) \in R$.
+          \end{itemize}
 
-\bigskip
+    \item \textbf{Direction (2): suppose $C_L[P] \xrightarrow{\mu} C_L[P']$.}\\
+          Every visible transition must originate from $P^*$.
+          $A_L$ alone produces no $\tau$: it has no $\tau$-prefixed subterm and cannot
+          self-synchronize, so any $\tau$ arises only by synchronizing with $P^*$ on a
+          complementary $b_a$ channel.
+          Restriction removes all observable $b_a$-labelled moves from the composed
+          system, but does not prevent the internal synchronization that produces $\tau$.
+          \begin{itemize}
+            \item \textit{Case $\mu = \tau$}:
+                  The $\tau$ arises in exactly two ways.
 
-\noindent\textbf{Case} $P = \bar{a}.Q$, $a \in L$:
+                  \textit{Sub-case: sync on $b_a$ ($P \xrightarrow{a} P'$, $a \in L$):}
+                  \begin{prooftree}
+                    \AxiomC{$P \xrightarrow{a} P'$}
+                    \RightLabel{$a \in L$, first rule of $\tau_L$}
+                    \UnaryInfC{$\tau_L(P) \xrightarrow{\tau} \tau_L(P')$}
+                  \end{prooftree}
+                  The case $P \xrightarrow{\bar{a}} P'$ is symmetric.
 
-\noindent Relabeling satisfies $f(\bar{a}) = \overline{f(a)}$, so $(\bar{a}.Q)^* = \bar{b}_a.Q^*$.
-The absorber $A_a$ offers $b_a$ via its left branch:
+                  \textit{Sub-case: silent step ($P \xrightarrow{\tau} P'$):}
+                  \begin{prooftree}
+                    \AxiomC{$P \xrightarrow{\tau} P'$}
+                    \RightLabel{$\tau \notin L \cup \bar{L}$, second rule of $\tau_L$}
+                    \UnaryInfC{$\tau_L(P) \xrightarrow{\tau} \tau_L(P')$}
+                  \end{prooftree}
 
-\begin{prooftree}
-  \AxiomC{}
-  \RightLabel{\textsc{Act}}
-  \UnaryInfC{$\bar{b}_a.Q^* \xrightarrow{\bar{b}_a} Q^*$}
-  \AxiomC{}
-  \RightLabel{\textsc{Act}}
-  \UnaryInfC{$b_a.A_a \xrightarrow{b_a} A_a$}
-  \RightLabel{\textsc{Sum}}
-  \UnaryInfC{$A_a \xrightarrow{b_a} A_a$}
-  \RightLabel{\textsc{Par-L}}
-  \UnaryInfC{$A_L \xrightarrow{b_a} A_a \mid A_{L\setminus\{a\}}$}
-  \RightLabel{\textsc{Com}}
-  \BinaryInfC{$\bar{b}_a.Q^* \mid A_L \xrightarrow{\tau} Q^* \mid A_L$}
-  \RightLabel{\textsc{Res} \quad $\tau \notin \{b_a \mid a \in L\}$}
-  \UnaryInfC{$(\bar{b}_a.Q^* \mid A_L)\setminus\{b_a \mid a \in L\} \xrightarrow{\tau}
-              (Q^* \mid A_L)\setminus\{b_a \mid a \in L\}$}
-\end{prooftree}
-Hence $\tau_L(\bar{a}.Q) \xrightarrow{\tau} \tau_L(Q)$. $\checkmark$
+                  In both sub-cases $\tau_L(P) \xRightarrow{\tau} \tau_L(P')$
+                  and $(\tau_L(P'), C_L[P']) \in R$.
 
-\bigskip
+            \item \textit{Case $\mu = \alpha \notin L \cup \bar{L}$}:
+                  Then $P \xrightarrow{\alpha} P'$ (renaming leaves $\alpha$ unchanged and
+                  restriction does not block it):
+                  \begin{prooftree}
+                    \AxiomC{$P \xrightarrow{\alpha} P'$}
+                    \RightLabel{$\alpha \notin L \cup \bar{L}$, second rule of $\tau_L$}
+                    \UnaryInfC{$\tau_L(P) \xrightarrow{\alpha} \tau_L(P')$}
+                  \end{prooftree}
+                  So $\tau_L(P) \xRightarrow{\alpha} \tau_L(P')$ and $(\tau_L(P'), C_L[P']) \in R$.
+          \end{itemize}
+  \end{itemize}
 
-\noindent\textbf{Case} $P = \alpha.Q$, $\alpha \notin L \cup \bar{L}$:
-
-\noindent The relabeling does not touch $\alpha$, so $(\alpha.Q)^* = \alpha.Q^*$.
-No absorber can synchronize on $\alpha$ since all $b_a$ are fresh.
-The restriction does not block $\alpha$ since $\alpha \notin \{b_a \mid a \in L\}$:
-
-\begin{prooftree}
-  \AxiomC{}
-  \RightLabel{\textsc{Act}}
-  \UnaryInfC{$\alpha.Q^* \xrightarrow{\alpha} Q^*$}
-  \RightLabel{\textsc{Par-L}}
-  \UnaryInfC{$\alpha.Q^* \mid A_L \xrightarrow{\alpha} Q^* \mid A_L$}
-  \RightLabel{\textsc{Res} \quad $\alpha \notin \{b_a \mid a \in L\}$}
-  \UnaryInfC{$(\alpha.Q^* \mid A_L)\setminus\{b_a \mid a \in L\} \xrightarrow{\alpha}
-              (Q^* \mid A_L)\setminus\{b_a \mid a \in L\}$}
-\end{prooftree}
-Hence $\tau_L(\alpha.Q) \xrightarrow{\alpha} \tau_L(Q)$. $\checkmark$
-
-\bigskip
-
-\noindent\textbf{Case} $P = P_1 + P_2$:
-
-\noindent $(P_1+P_2)^* = P_1^* + P_2^*$, so any transition of the sum comes from
-one component $j \in \{1,2\}$.
-By IH on $P_j$, $\tau_L(P_j)$ behaves correctly.
-The Sum rule then gives $\tau_L(P_1) + \tau_L(P_2)$ the same transitions:
-
-\begin{prooftree}
-  \AxiomC{$P_j^* \mid A_L \xrightarrow{\mu} Q_j \mid A_L$}
-  \RightLabel{IH}
-  \UnaryInfC{$\tau_L(P_j) \xrightarrow{\mu} \tau_L(P_j')$}
-  \RightLabel{\textsc{Sum}}
-  \UnaryInfC{$\tau_L(P_1) + \tau_L(P_2) \xrightarrow{\mu} \tau_L(P_j')$}
-\end{prooftree}
-Hence $\tau_L(P_1 + P_2) = \tau_L(P_1) + \tau_L(P_2)$. $\checkmark$
-
-\bigskip
-
-\noindent\textbf{Case} $P = P_1 \mid P_2$:
-
-\noindent $(P_1 \mid P_2)^* = P_1^* \mid P_2^*$.
-Each absorber $A_a$ is independent across components, so
-$A_L$ distributes: $P_1^* \mid A_L \mid P_2^*$ rearranges to
-$( P_1^* \mid A_L) \mid (P_2^* \mid A_L)$ up to the structural equivalence
-$A_L \sim A_L \mid A_L$ (since $A_a$ is replicated by its own recursion).
-By IH on each component, Par-L/Par-R/Com then give
-$\tau_L(P_1 \mid P_2) = \tau_L(P_1) \mid \tau_L(P_2)$. $\checkmark$
-
-\bigskip
-
-% ================================================================
-% CONCLUSION
-% ================================================================
-
-\noindent\textbf{Definability in CCS.}
-The construction uses only:
-\[
-  \begin{array}{ll}
-    P[b_a/a \mid a \in L]                           & \text{relabeling — a standard CCS operator} \\
-    A_a \overset{\text{def}}{=} b_a.A_a + \bar{b}_a.A_a & \text{recursive constant — allowed in CCS}  \\
-    A_L = \prod_{a \in L} A_a                        & \text{finite parallel composition}            \\
-    (\cdots)\setminus\{b_a \mid a \in L\}            & \text{restriction — a standard CCS operator}  \\
-  \end{array}
-\]
-All operators belong to the standard CCS syntax.
-Hence $\tau_L$ is definable in CCS. $\square$
-
-\bigskip
-
-% ================================================================
-% FURTHER OBSERVATIONS
-% ================================================================
-
-\noindent\textbf{Further observations.}
-
-\medskip
-\noindent\textbf{1. Freshness of $b_a$ is essential.}
-The construction requires $b_a \notin \mathrm{fn}(P) \cup L$ strictly.
-If $b_a$ already appeared in $P$, the process could synchronize with $A_a$
-on $b_a$ at unintended moments — not because of an action in $L$, but because
-$P$ happened to use the same channel name. The result would be spurious $\tau$
-steps that do not correspond to any original action in $L$.
-
-\medskip
-\noindent\textbf{2. $\tau_L$ vs.\ restriction $P \setminus L$.}
-These are fundamentally different operators.
-$P \setminus L$ \emph{blocks} actions in $L$: the process gets stuck wherever
-it would need $a \in L$.
-$\tau_L(P)$ \emph{absorbs} them: the action still happens internally and the
-process continues, but the external observer only sees $\tau$.
-In particular, $\tau_L(a.P) \xrightarrow{\tau} \tau_L(P)$ whereas
-$(a.P) \setminus \{a\}$ has no transition at all.
-
-\medskip
-\noindent\textbf{3. Existing $\tau$ actions are unaffected.}
-If $P$ already contains a $\tau$ prefix, it falls under the case
-$\alpha \notin L \cup \bar{L}$ (since $\tau$ has no complement in $L$) and
-passes through unchanged:
-$\tau_L(\tau.P) = \tau.\tau_L(P)$.
-The construction does not introduce extra silent steps beyond those caused by
-absorbing actions in $L$.
-
-\medskip
-\noindent\textbf{4. Why $A_L \sim A_L \mid A_L$.}
-The parallel case relies on the absorber being \emph{replicable}: one copy of
-$A_a$ can serve arbitrarily many requests because after each synchronization it
-loops back to $A_a$ unchanged.
-Formally, $A_a$ is weakly bisimilar to $A_a \mid A_a$: both processes always
-offer $b_a$ and $\bar{b}_a$, and after any sequence of synchronizations they
-return to the same shape.
-This is what allows a single $A_L$ in the construction to simultaneously serve
-all components of a parallel composition.
-
-\medskip
-\noindent\textbf{5. Degenerate case $L = \emptyset$.}
-When $L$ is empty there are no channels to rename, no absorbers to add, and no
-channels to restrict. The construction reduces to:
-\[
-  \tau_\emptyset(P) = (P \mid \mathbf{0}) \setminus \emptyset = P
-\]
-so $\tau_\emptyset$ is the identity, as expected.
-
-\medskip
-\noindent\textbf{6. The verification is not a full bisimulation proof.}
-The cases above show that $\tau_L(P)$ can \emph{perform} the required
-transitions, but a complete proof of behavioural equivalence would also require
-showing that $\tau_L(P)$ cannot perform any \emph{extra} transitions — i.e.\
-proving the converse direction and closing the bisimulation relation.
-The construction ensures this because the restriction on $\{b_a\}$ prevents any
-action on those channels from being observable, and the absorber introduces no
-new visible actions (it only synchronizes, producing $\tau$).
+In all cases every condition of $(*)$ is satisfied, so $R$ is a weak bisimulation.
+Since $\sim$ is the largest weak bisimulation, every bisimulation is contained in $\sim$,
+so $R \subseteq \sim$. As $(\tau_L(P), C_L[P]) \in R$, we conclude $\tau_L(P) \sim C_L[P]$ for all $P$.
+\end{proof}
 
 \end{document}
