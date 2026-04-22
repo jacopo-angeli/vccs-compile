@@ -42,6 +42,7 @@ let compile (vccs_proc_list: Vccs list) : Pccs list =
                     | Not B -> not (evaluateB B)              
                     | And(B, B') -> evaluateB B && evaluateB B'
                     | Or(B, B') -> evaluateB B || evaluateB B'
+            
             match P with 
             | Vccs.Act(action,P) -> 
                 match action with
@@ -52,9 +53,16 @@ let compile (vccs_proc_list: Vccs list) : Pccs list =
                     if values = [] then
                         failwithf "Empty interval for input channel '%s'" channel
                     values
-                    |> List.map (fun value ->
-                            Pccs.Act(Pccs.Input (sprintf "%s_%d" channel value), compileP P ((var, value) :: env)))
-                    |> List.reduce (fun x y -> Pccs.Sum(x,y))
+                    |> List.map(
+                            fun value ->
+                                Pccs.Act(
+                                    Pccs.Input (sprintf "%s_%d" channel value), 
+                                    compileP P ((var, value) :: env)
+                                )
+                        )
+                    |> List.reduce (
+                        fun x y -> Pccs.Sum(x,y)
+                        )
 
                 | Vccs.Output(channel, expr) ->
                     Pccs.Act(Pccs.Output (sprintf "%s_%d" channel (evaluateA expr)), compileP P env)
@@ -89,17 +97,18 @@ let compile (vccs_proc_list: Vccs list) : Pccs list =
 
             | Vccs.Nil -> Pccs.Nil       
         
-        match vccs_proc with 
-        | name, [], body ->
-            let bodyCompiled = compileP body []
-            [Pccs(name, bodyCompiled)]
+        match vccs_proc with
+        | name, [], body -> [Pccs(name, (compileP body []))]
         | name, parameters, body ->
             List.map
-                (fun (env : List<string * int>) ->
-                    let name = name + List.reduce (+) (List.map (fun (k,v) -> sprintf "_%d" v) env)
-                    let body = compileP body env  
-                    Pccs(name, body))
-                (getValuations parameters)  
+                (
+                    fun (env : List<string * int>) ->
+                        // Suffix = concrete values joined with '_', e.g. K(x=1,y=2) -> "K_1_2"
+                        let name = name + List.reduce (+) (List.map (fun (k,v) -> sprintf "_%d" v) env)
+                        let body = compileP body env
+                        Pccs(name, body)
+                )
+                (getValuations parameters)
             
     vccs_proc_list |> List.collect compileDecl
     

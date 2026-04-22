@@ -22,7 +22,7 @@ let parseInput input =
     let lexbuf = LexBuffer<char>.FromString input
     Parser.start Lexer.token lexbuf
 
-let repl () =
+let repl (stringify: Pccs.Pccs -> string) =
     printfn "VP2Pccs interactive - CCS-VP to CCS compiler"
     printfn "Enter declarations ending with ';'. Multi-line input is supported."
     printfn "Commands: #list, #clear, #quit"
@@ -80,18 +80,23 @@ let repl () =
                     collectRefs body |> List.iter (fun name ->
                         if not (Set.contains name allDefined) then
                             eprintfn "⚠️  Warning: undefined reference '%s'" name))
-                pccss |> List.iter (fun pccs -> printfn "%s" (Pccs.stringify pccs))
+                pccss |> List.iter (fun pccs -> printfn "%s" (stringify pccs))
                 defined <- allDefined
             with e ->
                 eprintfn "❌ Parse error: %s" e.Message
 
 [<EntryPoint>]
 let main argv =
-    if argv.Length = 0 then
-        repl ()
+    let flags  = argv |> Array.filter (fun a -> a.StartsWith "--")
+    let args   = argv |> Array.filter (fun a -> not (a.StartsWith "--"))
+    let caalMode = Array.contains "--caal" flags
+    let stringify = if caalMode then Pccs.stringifyCaal else Pccs.stringify
+
+    if args.Length = 0 then
+        repl stringify
         0
     else
-        let inputFile = argv.[0]
+        let inputFile = args.[0]
         if not (File.Exists inputFile) then
             printfn "Input file '%s' does not exist." inputFile
             1
@@ -124,7 +129,7 @@ let main argv =
                         printfn "⚠️  Warning: undefined reference '%s'" name))
 
             let outputFile = getOutputFileName inputFile
-            let outputContent = String.concat "\n" (List.map Pccs.stringify pccss)
+            let outputContent = String.concat "\n" (List.map stringify pccss)
             File.WriteAllText(outputFile, outputContent)
             printfn "Output written to: %s" outputFile
             0
