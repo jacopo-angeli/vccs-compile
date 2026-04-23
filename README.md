@@ -1,4 +1,4 @@
-# VP2Pccs
+# vccs-compile
 
 A compiler from **Value-Passing CCS** to **Pure CCS**, written in F# with a hand-built lexer/parser pipeline.
 
@@ -8,7 +8,7 @@ A compiler from **Value-Passing CCS** to **Pure CCS**, written in F# with a hand
 
 ## What it does
 
-[CCS (Calculus of Communicating Systems)](https://en.wikipedia.org/wiki/Calculus_of_communicating_systems) is a formal language for modelling concurrent processes. The value-passing extension lets processes send and receive integer data over channels. VP2Pccs takes a `.vccs` source file and compiles it to `.ccs` by expanding each typed channel into a family of distinct channels, one per possible value. Conditional guards are evaluated statically and dead branches are eliminated.
+[CCS (Calculus of Communicating Systems)](https://en.wikipedia.org/wiki/Calculus_of_communicating_systems) is a formal language for modelling concurrent processes. The value-passing extension lets processes send and receive integer data over channels. vccs-compile takes a `.vccs` source file and compiles it to `.ccs` by expanding each typed channel into a family of distinct channels, one per possible value. Conditional guards are evaluated statically and dead branches are eliminated.
 
 **Input** (`counter.vccs`):
 
