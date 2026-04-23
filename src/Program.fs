@@ -23,7 +23,7 @@ let parseInput input =
     Parser.start Lexer.token lexbuf
 
 let repl (stringify: Pccs.Pccs -> string) =
-    printfn "VP2Pccs interactive - CCS-VP to CCS compiler"
+    printfn "vccs-compile interactive - CCS-VP to CCS compiler"
     printfn "Enter declarations ending with ';'. Multi-line input is supported."
     printfn "Commands: #list, #clear, #quit"
     printfn ""
