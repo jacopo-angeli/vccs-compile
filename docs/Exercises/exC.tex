@@ -184,7 +184,7 @@ in CCS, so that synchronization is preserved by the encoding.
     \UnaryInfC{$\enc P\setminus L\cne \xrightarrow{\hat\alpha} \enc P'\setminus L\cne$}
 \end{prooftree}
 
-\textbf{Ren} $P[f] \xrightarrow{f(\alpha)} P'[f]$, where $f'(a_m)=f(a)_m$ and $\widehat{f(\alpha)}=f'(\hat\alpha)$:\\[1em]
+\textbf{Ren} $P[f] \xrightarrow{f(\alpha)} P'[f]$:\\[1em]
 \begin{prooftree}
     \AxiomC{$P \xrightarrow{\alpha} P'$}
     \RightLabel{IH}
@@ -194,17 +194,35 @@ in CCS, so that synchronization is preserved by the encoding.
     \RightLabel{$=$}
     \UnaryInfC{$\enc P[f]\cne \xrightarrow{\widehat{f(\alpha)}} \enc P'[f]\cne$}
 \end{prooftree}
+Where $f'(a_m)=f(a)_m$ and $\widehat{f(\alpha)}=f'(\hat\alpha)$.
 The equality $\widehat{f(\alpha)} = f'(\hat\alpha)$ ensures the commutation of encoding and renaming.
+\textit{Proof by cases on $\alpha$:}
+\[
+\begin{array}{lll}
+\alpha = a(m):        & f'(\hat\alpha) = f'(a_m) = f(a)_m              & = \widehat{f(a)(m)}            = \widehat{f(\alpha)} \\
+\alpha = \bar{a}(m): & f'(\hat\alpha) = f'(\bar{a}_m) = \overline{f(a)}_m & = \widehat{\overline{f(a)}(m)} = \widehat{f(\alpha)} \\
+\alpha = \tau:         & f'(\tau) = \tau                                  & = \widehat{f(\tau)}            = \widehat{f(\alpha)}
+\end{array}
+\]
 
-\textbf{Const} $K(e_1,\ldots,e_h) \xrightarrow{\alpha} R$, $e_i\downarrow n_i$:\\[1em]
+\textbf{Const} $K(e_1,\ldots,e_h) \xrightarrow{\alpha} P'$, $e_i\downarrow n_i$:\\[1em]
+We are doing rule induction on the given derivation of $K(e_1,\ldots,e_h) \xrightarrow{\alpha} P'$.
+The last rule fired is CCS-VP Const, whose shape is:
 \begin{prooftree}
-    \AxiomC{$P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} R$}
-    \RightLabel{IH}
-    \UnaryInfC{$K_{n_1,\ldots} \xrightarrow{\hat\alpha} \enc R\cne$}
-    \RightLabel{$=$}
-    \UnaryInfC{$\enc K(e_1,\ldots,e_h)\cne \xrightarrow{\hat\alpha} \enc R\cne$}
+    \AxiomC{$P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} P'$}
+    \RightLabel{Const}
+    \UnaryInfC{$K(e_1,\ldots,e_h) \xrightarrow{\alpha} P'$}
 \end{prooftree}
-The transition follows from unfolding the constant $K_{n_1,\ldots} \overset{\text{def}}{=} \enc P\{^{n_1}/_{x_1},\ldots\}\cne$ and applying the IH to the body; derivation depth strictly decreases at each unfolding step.
+This tells us that $P'$ is determined by the premise, and that $P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} P'$ holds with a strictly shorter derivation. The IH applies to that premise:
+\begin{prooftree}
+    \AxiomC{$P\{^{n_1}/_{x_1},\ldots\} \xrightarrow{\alpha} P'$}
+    \RightLabel{IH}
+    \UnaryInfC{$\enc P\{^{n_1}/_{x_1},\ldots\}\cne \xrightarrow{\hat\alpha} \enc P'\cne$}
+    \RightLabel{Const}
+    \UnaryInfC{$K_{n_1,\ldots} \xrightarrow{\hat\alpha} \enc P'\cne$}
+    \RightLabel{$=$}
+    \UnaryInfC{$\enc K(e_1,\ldots,e_h)\cne \xrightarrow{\hat\alpha} \enc P'\cne$}
+\end{prooftree}
 
 \textbf{Cond} $\text{if }b\text{ then }P \xrightarrow{\alpha} P'$, $b$ true:\\[1em]
 \begin{prooftree}
